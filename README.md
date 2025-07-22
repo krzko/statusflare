@@ -1,14 +1,14 @@
 # Statusflare
 
-A lightweight, serverless status monitoring service built on Cloudflare Workers, D1, and R2. Inspired by StatusPage but designed for simplicity and cost-effectiveness.
+A serverless status monitoring service built on Cloudflare Workers, D1, and R2. Inspired by StatusPage but designed for simplicity and cost-effectiveness.
 
-<img src="https://github.com/krzko/statusflare/blob/main/docs/images/statusflare.png" alt="Statusflare">
+<img src="https://raw.githubusercontent.com/krzko/statusflare/main/docs/images/statusflare.png" alt="Statusflare">
 
 ## Overview
 
 Statusflare automatically monitors your services using multiple monitor types and displays their availability on a beautiful status page. It runs entirely on Cloudflare's edge infrastructure with scheduled health checks and static page generation.
 
-## Key Features
+## Features
 
 - 🚀 **Serverless**: Built on Cloudflare Workers with zero server management
 - 📊 **Real-time Monitoring**: Multiple monitor types with checks every minute
