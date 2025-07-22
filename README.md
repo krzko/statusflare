@@ -2,7 +2,7 @@
 
 A serverless status monitoring service built on Cloudflare Workers, D1, and R2. Inspired by StatusPage but designed for simplicity and cost-effectiveness.
 
-<img src="https://raw.githubusercontent.com/krzko/statusflare/main/docs/images/statusflare.png" alt="Statusflare">
+![Statusflare](docs/images/statusflare.png)
 
 ## Overview
 
