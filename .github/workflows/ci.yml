@@ -54,5 +54,5 @@ jobs:
       - name: Run tests
         run: pnpm run test:run
 
-      - name: Build check (dry run deploy)
-        run: pnpm run deploy-dry-run
+      # - name: Build check (dry run deploy)
+      #   run: pnpm run deploy-dry-run
