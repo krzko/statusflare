@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.wrangler/
+
+# Coverage reports
+coverage/
+
+# Logs
+*.log
+
+# Environment files
+.env*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database files
+*.db
+*.sqlite
+
+# Generated files
+wrangler-types.d.ts

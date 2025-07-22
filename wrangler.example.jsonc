@@ -1,0 +1,45 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "statusflare",
+	"main": "src/index.ts",
+	"compatibility_date": "2024-11-11",
+	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+	"assets": {
+		"directory": "./public",
+	},
+	"observability": {
+		"enabled": true,
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "statusflare-db",
+			"database_id": "xxx",
+		},
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "statusflare-pages",
+		},
+	],
+	"hyperdrive": [
+		{
+			"binding": "SUPABASE_DB",
+			"id": "xxx",
+		}
+	],
+	"triggers": {
+		"crons": ["* * * * *"],
+	},
+	"vars": {
+		"BASE_URL": "https://status.example.com",
+		"SITE_TITLE": "Example Status",
+		"RSS_TITLE_SUFFIX": "Incident Updates",
+		"SUPABASE_DB": "xxx",
+	},
+}
