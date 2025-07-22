@@ -44,7 +44,11 @@ export class TestWebhookHandler {
 			const notificationService = new DefaultNotificationService(this.env.BASE_URL);
 
 			// Execute use case
-			const testWebhookUseCase = new TestWebhookUseCase(sloRepository, notificationService, this.env.BASE_URL);
+			const testWebhookUseCase = new TestWebhookUseCase(
+				sloRepository,
+				notificationService,
+				this.env.BASE_URL
+			);
 
 			const result = await testWebhookUseCase.execute({ channelId: channelIdNum });
 
@@ -56,7 +60,7 @@ export class TestWebhookHandler {
 					}),
 					{
 						headers: { 'Content-Type': 'application/json' },
-					},
+					}
 				);
 			} else {
 				return new Response(
@@ -67,7 +71,7 @@ export class TestWebhookHandler {
 					{
 						status: 400,
 						headers: { 'Content-Type': 'application/json' },
-					},
+					}
 				);
 			}
 		} catch (error) {
@@ -80,7 +84,7 @@ export class TestWebhookHandler {
 				{
 					status: 500,
 					headers: { 'Content-Type': 'application/json' },
-				},
+				}
 			);
 		}
 	}

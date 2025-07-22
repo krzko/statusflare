@@ -59,7 +59,10 @@ export default [
 			],
 
 			// Best practices
-			'@typescript-eslint/no-magic-numbers': ['warn', { ignore: [0, 1, -1, 24, 60, 100, 200, 404, 500, 1000] }],
+			'@typescript-eslint/no-magic-numbers': [
+				'warn',
+				{ ignore: [0, 1, -1, 24, 60, 100, 200, 404, 500, 1000] },
+			],
 
 			// Security rules
 			'no-eval': 'error',

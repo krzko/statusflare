@@ -1,4 +1,8 @@
-import { PageGeneratorService, StatusPageData, ServiceStatusData } from '../../domain/services/PageGeneratorService';
+import {
+	PageGeneratorService,
+	StatusPageData,
+	ServiceStatusData,
+} from '../../domain/services/PageGeneratorService';
 
 export class HtmlPageGeneratorService implements PageGeneratorService {
 	generateStatusPage(data: StatusPageData): string {
@@ -37,8 +41,8 @@ export class HtmlPageGeneratorService implements PageGeneratorService {
         </div>
         
         ${data.categories
-					.flatMap((category) => category.services)
-					.map((service) => this.generateServiceCard(service))
+					.flatMap(category => category.services)
+					.map(service => this.generateServiceCard(service))
 					.join('')}
         
         <div class="footer">
@@ -52,9 +56,12 @@ export class HtmlPageGeneratorService implements PageGeneratorService {
 	private generateServiceCard(service: ServiceStatusData): string {
 		const statusClass = `status-${service.status}`;
 		// Calculate height based on response time for proper graph visualization
-		const maxResponseTime = Math.max(...service.history.filter((p) => p.responseTime).map((p) => p.responseTime!), 1000);
+		const maxResponseTime = Math.max(
+			...service.history.filter(p => p.responseTime).map(p => p.responseTime!),
+			1000
+		);
 		const historyBars = service.history
-			.map((point) => {
+			.map(point => {
 				let height: number;
 				let tooltipText: string;
 

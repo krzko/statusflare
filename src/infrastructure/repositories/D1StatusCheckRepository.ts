@@ -1,5 +1,9 @@
 import { StatusCheckRepository } from '../../domain/repositories/StatusCheckRepository';
-import { StatusCheck, CreateStatusCheckRequest, ServiceStatus } from '../../domain/entities/StatusCheck';
+import {
+	StatusCheck,
+	CreateStatusCheckRequest,
+	ServiceStatus,
+} from '../../domain/entities/StatusCheck';
 
 export class D1StatusCheckRepository implements StatusCheckRepository {
 	constructor(private db: D1Database) {}
@@ -22,7 +26,9 @@ export class D1StatusCheckRepository implements StatusCheckRepository {
 
 	async findRecent(hours: number): Promise<StatusCheck[]> {
 		const result = await this.db
-			.prepare('SELECT * FROM status_checks WHERE checked_at >= datetime("now", "-" || ? || " hours") ORDER BY checked_at DESC')
+			.prepare(
+				'SELECT * FROM status_checks WHERE checked_at >= datetime("now", "-" || ? || " hours") ORDER BY checked_at DESC'
+			)
 			.bind(hours)
 			.all<StatusCheck>();
 		return result.results.map(this.mapToStatusCheck);
@@ -35,14 +41,14 @@ export class D1StatusCheckRepository implements StatusCheckRepository {
 				INSERT INTO status_checks (service_id, status, response_time_ms, status_code, error_message)
 				VALUES (?, ?, ?, ?, ?)
 				RETURNING *
-			`,
+			`
 			)
 			.bind(
 				statusCheck.serviceId,
 				statusCheck.status,
 				statusCheck.responseTimeMs || null,
 				statusCheck.statusCode || null,
-				statusCheck.errorMessage || null,
+				statusCheck.errorMessage || null
 			)
 			.first<StatusCheck>();
 
@@ -53,7 +59,11 @@ export class D1StatusCheckRepository implements StatusCheckRepository {
 		return this.mapToStatusCheck(result);
 	}
 
-	async findByServiceIdInTimeRange(serviceId: number, startTime: Date, endTime: Date): Promise<StatusCheck[]> {
+	async findByServiceIdInTimeRange(
+		serviceId: number,
+		startTime: Date,
+		endTime: Date
+	): Promise<StatusCheck[]> {
 		const results = await this.db
 			.prepare(
 				`
@@ -62,12 +72,12 @@ export class D1StatusCheckRepository implements StatusCheckRepository {
 				AND checked_at >= ? 
 				AND checked_at <= ?
 				ORDER BY checked_at DESC
-			`,
+			`
 			)
 			.bind(serviceId, startTime.toISOString(), endTime.toISOString())
 			.all<any>();
 
-		return results.results.map((row) => this.mapToStatusCheck(row));
+		return results.results.map(row => this.mapToStatusCheck(row));
 	}
 
 	async deleteOld(olderThanDays: number): Promise<number> {

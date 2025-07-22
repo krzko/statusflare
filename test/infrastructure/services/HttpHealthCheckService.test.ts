@@ -38,8 +38,8 @@ describe('HttpHealthCheckService', () => {
 			};
 
 			// Add a small delay to simulate network latency
-			mockFetch.mockImplementationOnce(() => 
-				new Promise(resolve => setTimeout(() => resolve(mockResponse), 10))
+			mockFetch.mockImplementationOnce(
+				() => new Promise(resolve => setTimeout(() => resolve(mockResponse), 10))
 			);
 
 			const result = await healthCheckService.performCheck(mockService);
@@ -66,8 +66,8 @@ describe('HttpHealthCheckService', () => {
 			};
 
 			// Add a small delay to simulate network latency
-			mockFetch.mockImplementationOnce(() => 
-				new Promise(resolve => setTimeout(() => resolve(mockResponse), 10))
+			mockFetch.mockImplementationOnce(
+				() => new Promise(resolve => setTimeout(() => resolve(mockResponse), 10))
 			);
 
 			const result = await healthCheckService.performCheck(mockService);
@@ -80,8 +80,8 @@ describe('HttpHealthCheckService', () => {
 
 		it('should return DOWN status for network errors', async () => {
 			// Add a small delay to simulate network latency before error
-			mockFetch.mockImplementationOnce(() => 
-				new Promise((_, reject) => setTimeout(() => reject(new Error('Network error')), 10))
+			mockFetch.mockImplementationOnce(
+				() => new Promise((_, reject) => setTimeout(() => reject(new Error('Network error')), 10))
 			);
 
 			const result = await healthCheckService.performCheck(mockService);
@@ -95,8 +95,8 @@ describe('HttpHealthCheckService', () => {
 			const timeoutError = new Error('Request timeout');
 			timeoutError.name = 'AbortError';
 			// Add a small delay to simulate network latency before timeout
-			mockFetch.mockImplementationOnce(() => 
-				new Promise((_, reject) => setTimeout(() => reject(timeoutError), 10))
+			mockFetch.mockImplementationOnce(
+				() => new Promise((_, reject) => setTimeout(() => reject(timeoutError), 10))
 			);
 
 			const result = await healthCheckService.performCheck(mockService);
@@ -226,7 +226,7 @@ describe('HttpHealthCheckService', () => {
 				expect.any(String),
 				expect.objectContaining({
 					signal: expect.any(AbortSignal),
-				}),
+				})
 			);
 		});
 
@@ -236,14 +236,14 @@ describe('HttpHealthCheckService', () => {
 				status: 200,
 				text: async () => {
 					// Simulate some delay
-					await new Promise((resolve) => setTimeout(resolve, 10));
+					await new Promise(resolve => setTimeout(resolve, 10));
 					return 'OK';
 				},
 			};
 
 			// Add a delay to the fetch itself to simulate network latency
-			mockFetch.mockImplementationOnce(() => 
-				new Promise(resolve => setTimeout(() => resolve(mockResponse), 15))
+			mockFetch.mockImplementationOnce(
+				() => new Promise(resolve => setTimeout(() => resolve(mockResponse), 15))
 			);
 
 			const result = await healthCheckService.performCheck(mockService);
@@ -335,7 +335,7 @@ describe('HttpHealthCheckService', () => {
 	describe('HTTP methods support', () => {
 		const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'PATCH'] as const;
 
-		httpMethods.forEach((method) => {
+		httpMethods.forEach(method => {
 			it(`should support ${method} requests`, async () => {
 				const serviceWithMethod = createMockService({
 					...mockService,
@@ -356,7 +356,7 @@ describe('HttpHealthCheckService', () => {
 					expect.any(String),
 					expect.objectContaining({
 						method,
-					}),
+					})
 				);
 			});
 		});
@@ -433,7 +433,7 @@ describe('HttpHealthCheckService', () => {
 					headers: expect.objectContaining({
 						'User-Agent': 'Mozilla/5.0 (compatible; Statusflare/1.0; https://statusflare.org)',
 					}),
-				}),
+				})
 			);
 		});
 
@@ -454,7 +454,7 @@ describe('HttpHealthCheckService', () => {
 				expect.any(String),
 				expect.not.objectContaining({
 					redirect: expect.any(String),
-				}),
+				})
 			);
 		});
 
@@ -517,7 +517,7 @@ describe('HttpHealthCheckService', () => {
 					...mockService,
 					id: i + 1,
 					url: `https://api${i + 1}.example.com`,
-				}),
+				})
 			);
 
 			mockFetch.mockResolvedValue({
@@ -527,12 +527,12 @@ describe('HttpHealthCheckService', () => {
 			});
 
 			const startTime = Date.now();
-			const promises = services.map((service) => healthCheckService.performCheck(service));
+			const promises = services.map(service => healthCheckService.performCheck(service));
 			const results = await Promise.all(promises);
 			const endTime = Date.now();
 
 			expect(results).toHaveLength(10);
-			expect(results.every((r) => r.status === ServiceStatus.UP)).toBe(true);
+			expect(results.every(r => r.status === ServiceStatus.UP)).toBe(true);
 			expect(endTime - startTime).toBeLessThan(5000); // Should complete quickly
 		});
 	});

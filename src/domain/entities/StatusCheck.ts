@@ -16,4 +16,5 @@ export interface CreateStatusCheckRequest {
 	responseTimeMs?: number;
 	statusCode?: number;
 	errorMessage?: string;
+	checkedAt?: Date;
 }

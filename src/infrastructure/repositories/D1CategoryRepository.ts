@@ -1,26 +1,40 @@
 import { CategoryRepository } from '../../domain/repositories/CategoryRepository';
-import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../domain/entities/Category';
+import {
+	Category,
+	CreateCategoryRequest,
+	UpdateCategoryRequest,
+} from '../../domain/entities/Category';
 
 export class D1CategoryRepository implements CategoryRepository {
 	constructor(private db: D1Database) {}
 
 	async findAll(): Promise<Category[]> {
-		const result = await this.db.prepare('SELECT * FROM categories ORDER BY display_order, name').all<Category>();
+		const result = await this.db
+			.prepare('SELECT * FROM categories ORDER BY display_order, name')
+			.all<Category>();
 		return result.results.map(this.mapToCategory);
 	}
 
 	async findById(id: number): Promise<Category | null> {
-		const result = await this.db.prepare('SELECT * FROM categories WHERE id = ?').bind(id).first<Category>();
+		const result = await this.db
+			.prepare('SELECT * FROM categories WHERE id = ?')
+			.bind(id)
+			.first<Category>();
 		return result ? this.mapToCategory(result) : null;
 	}
 
 	async findByName(name: string): Promise<Category | null> {
-		const result = await this.db.prepare('SELECT * FROM categories WHERE name = ?').bind(name).first<Category>();
+		const result = await this.db
+			.prepare('SELECT * FROM categories WHERE name = ?')
+			.bind(name)
+			.first<Category>();
 		return result ? this.mapToCategory(result) : null;
 	}
 
 	async findEnabled(): Promise<Category[]> {
-		const result = await this.db.prepare('SELECT * FROM categories WHERE enabled = true ORDER BY display_order, name').all<Category>();
+		const result = await this.db
+			.prepare('SELECT * FROM categories WHERE enabled = true ORDER BY display_order, name')
+			.all<Category>();
 		return result.results.map(this.mapToCategory);
 	}
 
@@ -31,9 +45,14 @@ export class D1CategoryRepository implements CategoryRepository {
 				INSERT INTO categories (name, description, display_order, enabled)
 				VALUES (?, ?, ?, ?)
 				RETURNING *
-			`,
+			`
 			)
-			.bind(category.name, category.description || null, category.displayOrder || 0, category.enabled ?? true)
+			.bind(
+				category.name,
+				category.description || null,
+				category.displayOrder || 0,
+				category.enabled ?? true
+			)
 			.first<Category>();
 
 		if (!result) {
@@ -88,7 +107,7 @@ export class D1CategoryRepository implements CategoryRepository {
 
 		if (servicesCheck && servicesCheck.count > 0) {
 			throw new Error(
-				`Cannot delete category: ${servicesCheck.count} service(s) are still associated with this category. Please move or delete the services first.`,
+				`Cannot delete category: ${servicesCheck.count} service(s) are still associated with this category. Please move or delete the services first.`
 			);
 		}
 

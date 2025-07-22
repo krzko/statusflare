@@ -45,7 +45,7 @@ const handler = {
 			statusCheckRepository,
 			sloCalculationService,
 			notificationService,
-			env.BASE_URL,
+			env.BASE_URL
 		);
 		const generateStatusPageUseCase = new GenerateStatusPageUseCase(
 			serviceRepository,
@@ -55,7 +55,7 @@ const handler = {
 			systemStatusRepository,
 			incidentRepository,
 			incidentUpdateRepository,
-			pageGeneratorService,
+			pageGeneratorService
 		);
 
 		// Initialize AdminPageHandler
@@ -180,7 +180,9 @@ const handler = {
 	},
 
 	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-		console.log(`Running scheduled status checks and SLO monitoring at ${new Date(controller.scheduledTime).toISOString()}`);
+		console.log(
+			`Running scheduled status checks and SLO monitoring at ${new Date(controller.scheduledTime).toISOString()}`
+		);
 
 		// Use ctx.waitUntil to ensure all async operations complete
 		ctx.waitUntil(
@@ -193,7 +195,11 @@ const handler = {
 					const healthCheckService = new HttpHealthCheckService(env);
 
 					// Run monitoring checks
-					const monitorServicesUseCase = new MonitorServicesUseCase(serviceRepository, statusCheckRepository, healthCheckService);
+					const monitorServicesUseCase = new MonitorServicesUseCase(
+						serviceRepository,
+						statusCheckRepository,
+						healthCheckService
+					);
 
 					await monitorServicesUseCase.execute();
 
@@ -207,7 +213,7 @@ const handler = {
 						statusCheckRepository,
 						sloCalculationService,
 						notificationService,
-						env.BASE_URL,
+						env.BASE_URL
 					);
 
 					await sloMonitoringUseCase.evaluateAllSLOs();
@@ -231,7 +237,7 @@ const handler = {
 						systemStatusRepository,
 						incidentRepository,
 						incidentUpdateRepository,
-						pageGeneratorService,
+						pageGeneratorService
 					);
 
 					const statusPageHtml = await generateStatusPageUseCase.execute();
@@ -247,13 +253,13 @@ const handler = {
 					const rssGenerator = new RssFeedGenerator();
 					const incidents = await incidentRepository.findRecent(50);
 					const incidentsWithUpdates = await Promise.all(
-						incidents.map(async (incident) => {
+						incidents.map(async incident => {
 							const updates = await incidentUpdateRepository.findByIncidentId(incident.id);
 							return {
 								...incident,
 								updates,
 							};
-						}),
+						})
 					);
 
 					const pageConfig = await pageConfigRepository.get();
@@ -279,14 +285,16 @@ const handler = {
 				} catch (error) {
 					console.error('Scheduled task error:', error);
 				}
-			})(),
+			})()
 		);
 	},
 
 	// API Authentication helper
 	authenticateApiRequest(request: Request, env: Env): boolean {
 		// Require API key for all requests
-		const apiKey = request.headers.get('X-API-Key') || request.headers.get('Authorization')?.replace('Bearer ', '');
+		const apiKey =
+			request.headers.get('X-API-Key') ||
+			request.headers.get('Authorization')?.replace('Bearer ', '');
 		return apiKey === env.STATUSFLARE_ADMIN_PASSWORD;
 	},
 
@@ -310,13 +318,13 @@ const handler = {
 
 			const incidents = await incidentRepository.findRecent(50);
 			const incidentsWithUpdates = await Promise.all(
-				incidents.map(async (incident) => {
+				incidents.map(async incident => {
 					const updates = await incidentUpdateRepository.findByIncidentId(incident.id);
 					return {
 						...incident,
 						updates,
 					};
-				}),
+				})
 			);
 
 			const pageConfig = await pageConfigRepository.get();
@@ -345,7 +353,10 @@ const handler = {
 		}
 	},
 
-	async handleStatusPage(generateStatusPageUseCase: GenerateStatusPageUseCase, r2: R2Bucket): Promise<Response> {
+	async handleStatusPage(
+		generateStatusPageUseCase: GenerateStatusPageUseCase,
+		r2: R2Bucket
+	): Promise<Response> {
 		try {
 			// Try to get cached version from R2 first
 			const cachedPage = await r2.get('status.html');
@@ -366,7 +377,10 @@ const handler = {
 		}
 	},
 
-	async handleServicesApi(request: Request, manageServicesUseCase: ManageServicesUseCase): Promise<Response> {
+	async handleServicesApi(
+		request: Request,
+		manageServicesUseCase: ManageServicesUseCase
+	): Promise<Response> {
 		const url = new URL(request.url);
 
 		try {
@@ -417,10 +431,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -538,7 +555,8 @@ const handler = {
 				return new Response(JSON.stringify({ success: true }), {
 					headers: {
 						'Content-Type': 'application/json',
-						'Set-Cookie': 'admin-session=authenticated; path=/; max-age=3600; HttpOnly; Secure; SameSite=Strict',
+						'Set-Cookie':
+							'admin-session=authenticated; path=/; max-age=3600; HttpOnly; Secure; SameSite=Strict',
 					},
 				});
 			}
@@ -592,10 +610,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -619,10 +640,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -677,14 +701,20 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
-	async handleIncidentUpdatesApi(request: Request, incidentUpdateRepository: any): Promise<Response> {
+	async handleIncidentUpdatesApi(
+		request: Request,
+		incidentUpdateRepository: any
+	): Promise<Response> {
 		const url = new URL(request.url);
 
 		try {
@@ -745,10 +775,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -772,10 +805,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -844,13 +880,18 @@ const handler = {
 
 					// Validate types of provided fields (all are optional in Partial<SLO>)
 					if (
-						(sloUpdateData.serviceId !== undefined && typeof sloUpdateData.serviceId !== 'number') ||
+						(sloUpdateData.serviceId !== undefined &&
+							typeof sloUpdateData.serviceId !== 'number') ||
 						(sloUpdateData.name !== undefined && typeof sloUpdateData.name !== 'string') ||
-						(sloUpdateData.sliType !== undefined && !['availability', 'latency'].includes(sloUpdateData.sliType)) ||
-						(sloUpdateData.targetPercentage !== undefined && typeof sloUpdateData.targetPercentage !== 'number') ||
-						(sloUpdateData.timeWindowDays !== undefined && typeof sloUpdateData.timeWindowDays !== 'number') ||
+						(sloUpdateData.sliType !== undefined &&
+							!['availability', 'latency'].includes(sloUpdateData.sliType)) ||
+						(sloUpdateData.targetPercentage !== undefined &&
+							typeof sloUpdateData.targetPercentage !== 'number') ||
+						(sloUpdateData.timeWindowDays !== undefined &&
+							typeof sloUpdateData.timeWindowDays !== 'number') ||
 						(sloUpdateData.enabled !== undefined && typeof sloUpdateData.enabled !== 'boolean') ||
-						(sloUpdateData.latencyThresholdMs !== undefined && typeof sloUpdateData.latencyThresholdMs !== 'number')
+						(sloUpdateData.latencyThresholdMs !== undefined &&
+							typeof sloUpdateData.latencyThresholdMs !== 'number')
 					) {
 						return new Response('Invalid SLO update data structure', { status: 400 });
 					}
@@ -882,14 +923,20 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
-	async handleNotificationChannelsApi(request: Request, sloRepository: D1SLORepository): Promise<Response> {
+	async handleNotificationChannelsApi(
+		request: Request,
+		sloRepository: D1SLORepository
+	): Promise<Response> {
 		const url = new URL(request.url);
 
 		try {
@@ -909,7 +956,10 @@ const handler = {
 					}
 
 					// Type assertion with runtime validation
-					const channelData = createData as Omit<NotificationChannel, 'id' | 'createdAt' | 'updatedAt'>;
+					const channelData = createData as Omit<
+						NotificationChannel,
+						'id' | 'createdAt' | 'updatedAt'
+					>;
 
 					// Basic validation of required fields
 					if (
@@ -947,11 +997,16 @@ const handler = {
 					// Validate types of provided fields (all are optional in Partial<NotificationChannel>)
 					if (
 						(channelUpdateData.name !== undefined && typeof channelUpdateData.name !== 'string') ||
-						(channelUpdateData.type !== undefined && !['webhook', 'email', 'sms'].includes(channelUpdateData.type)) ||
-						(channelUpdateData.config !== undefined && typeof channelUpdateData.config !== 'string') ||
-						(channelUpdateData.enabled !== undefined && typeof channelUpdateData.enabled !== 'boolean')
+						(channelUpdateData.type !== undefined &&
+							!['webhook', 'email', 'sms'].includes(channelUpdateData.type)) ||
+						(channelUpdateData.config !== undefined &&
+							typeof channelUpdateData.config !== 'string') ||
+						(channelUpdateData.enabled !== undefined &&
+							typeof channelUpdateData.enabled !== 'boolean')
 					) {
-						return new Response('Invalid notification channel update data structure', { status: 400 });
+						return new Response('Invalid notification channel update data structure', {
+							status: 400,
+						});
 					}
 
 					await sloRepository.updateNotificationChannel(updateId, channelUpdateData);
@@ -980,14 +1035,20 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
-	async handleSLONotificationsApi(request: Request, sloRepository: D1SLORepository): Promise<Response> {
+	async handleSLONotificationsApi(
+		request: Request,
+		sloRepository: D1SLORepository
+	): Promise<Response> {
 		const url = new URL(request.url);
 
 		try {
@@ -1050,11 +1111,14 @@ const handler = {
 
 					// Validate types of provided fields (all are optional in Partial<SLONotification>)
 					if (
-						(notificationUpdateData.sloId !== undefined && typeof notificationUpdateData.sloId !== 'number') ||
+						(notificationUpdateData.sloId !== undefined &&
+							typeof notificationUpdateData.sloId !== 'number') ||
 						(notificationUpdateData.notificationChannelId !== undefined &&
 							typeof notificationUpdateData.notificationChannelId !== 'number') ||
-						(notificationUpdateData.burnRateThreshold !== undefined && typeof notificationUpdateData.burnRateThreshold !== 'number') ||
-						(notificationUpdateData.enabled !== undefined && typeof notificationUpdateData.enabled !== 'boolean')
+						(notificationUpdateData.burnRateThreshold !== undefined &&
+							typeof notificationUpdateData.burnRateThreshold !== 'number') ||
+						(notificationUpdateData.enabled !== undefined &&
+							typeof notificationUpdateData.enabled !== 'boolean')
 					) {
 						return new Response('Invalid SLO notification update data structure', { status: 400 });
 					}
@@ -1085,10 +1149,13 @@ const handler = {
 					return new Response('Method not allowed', { status: 405 });
 			}
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 
@@ -1118,7 +1185,7 @@ const handler = {
 				statusCheckRepository,
 				sloCalculationService,
 				notificationService,
-				env.BASE_URL,
+				env.BASE_URL
 			);
 
 			const metrics = await sloMonitoringUseCase.calculateSLOMetrics(sloId);
@@ -1126,10 +1193,13 @@ const handler = {
 				headers: { 'Content-Type': 'application/json' },
 			});
 		} catch (error) {
-			return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
 		}
 	},
 };

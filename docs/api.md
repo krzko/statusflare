@@ -30,17 +30,18 @@ Manage service categories for logical grouping of services.
 List all service categories.
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "Core Services",
-    "description": "Essential system components",
-    "displayOrder": 1,
-    "enabled": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"name": "Core Services",
+		"description": "Essential system components",
+		"displayOrder": 1,
+		"enabled": true,
+		"createdAt": "2024-01-01T00:00:00.000Z",
+		"updatedAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -49,12 +50,13 @@ List all service categories.
 Create a new category.
 
 **Request Body:**
+
 ```json
 {
-  "name": "Core Services",
-  "description": "Essential system components",
-  "displayOrder": 1,
-  "enabled": true
+	"name": "Core Services",
+	"description": "Essential system components",
+	"displayOrder": 1,
+	"enabled": true
 }
 ```
 
@@ -75,28 +77,29 @@ Manage monitored services with various monitor types.
 List all services.
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "Website",
-    "url": "https://example.com",
-    "monitorType": "http",
-    "method": "GET",
-    "expectedStatus": 200,
-    "expectedContent": null,
-    "keyword": null,
-    "requestBody": null,
-    "requestHeaders": null,
-    "bearerToken": null,
-    "hyperdriveId": null,
-    "postgresqlQuery": null,
-    "timeoutMs": 5000,
-    "categoryId": 1,
-    "enabled": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"name": "Website",
+		"url": "https://example.com",
+		"monitorType": "http",
+		"method": "GET",
+		"expectedStatus": 200,
+		"expectedContent": null,
+		"keyword": null,
+		"requestBody": null,
+		"requestHeaders": null,
+		"bearerToken": null,
+		"hyperdriveId": null,
+		"postgresqlQuery": null,
+		"timeoutMs": 5000,
+		"categoryId": 1,
+		"enabled": true,
+		"createdAt": "2024-01-01T00:00:00.000Z",
+		"updatedAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -107,54 +110,58 @@ Create a new service with monitor configuration.
 **Request Body Examples:**
 
 **HTTP/HTTPS Monitor:**
+
 ```json
 {
-  "name": "Website",
-  "url": "https://example.com",
-  "monitorType": "http",
-  "expectedStatus": 200,
-  "timeoutMs": 5000,
-  "categoryId": 1,
-  "enabled": true
+	"name": "Website",
+	"url": "https://example.com",
+	"monitorType": "http",
+	"expectedStatus": 200,
+	"timeoutMs": 5000,
+	"categoryId": 1,
+	"enabled": true
 }
 ```
 
 **Keyword Monitor:**
+
 ```json
 {
-  "name": "Landing Page",
-  "url": "https://example.com",
-  "monitorType": "keyword",
-  "keyword": "Welcome",
-  "timeoutMs": 5000,
-  "enabled": true
+	"name": "Landing Page",
+	"url": "https://example.com",
+	"monitorType": "keyword",
+	"keyword": "Welcome",
+	"timeoutMs": 5000,
+	"enabled": true
 }
 ```
 
 **API Monitor:**
+
 ```json
 {
-  "name": "API Health",
-  "url": "https://api.example.com/health",
-  "monitorType": "api",
-  "method": "POST",
-  "requestBody": "{\"check\":\"health\"}",
-  "requestHeaders": "{\"Custom-Header\":\"value\"}",
-  "bearerToken": "your-api-token",
-  "timeoutMs": 10000,
-  "enabled": true
+	"name": "API Health",
+	"url": "https://api.example.com/health",
+	"monitorType": "api",
+	"method": "POST",
+	"requestBody": "{\"check\":\"health\"}",
+	"requestHeaders": "{\"Custom-Header\":\"value\"}",
+	"bearerToken": "your-api-token",
+	"timeoutMs": 10000,
+	"enabled": true
 }
 ```
 
 **Database Monitor:**
+
 ```json
 {
-  "name": "Database",
-  "monitorType": "postgresql",
-  "hyperdriveId": "b5f27764f6f74e1a9d72089b2445e21d",
-  "postgresqlQuery": "SELECT 1",
-  "timeoutMs": 5000,
-  "enabled": true
+	"name": "Database",
+	"monitorType": "postgresql",
+	"hyperdriveId": "b5f27764f6f74e1a9d72089b2445e21d",
+	"postgresqlQuery": "SELECT 1",
+	"timeoutMs": 5000,
+	"enabled": true
 }
 ```
 
@@ -175,19 +182,20 @@ Manage incident tracking and status updates.
 List all incidents.
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "title": "API Performance Issues",
-    "description": "Experiencing elevated response times",
-    "status": "investigating",
-    "impact": "minor",
-    "affectedServices": "[1,2]",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
-    "resolvedAt": null
-  }
+	{
+		"id": 1,
+		"title": "API Performance Issues",
+		"description": "Experiencing elevated response times",
+		"status": "investigating",
+		"impact": "minor",
+		"affectedServices": "[1,2]",
+		"createdAt": "2024-01-01T00:00:00.000Z",
+		"updatedAt": "2024-01-01T00:00:00.000Z",
+		"resolvedAt": null
+	}
 ]
 ```
 
@@ -196,13 +204,14 @@ List all incidents.
 Create a new incident.
 
 **Request Body:**
+
 ```json
 {
-  "title": "API Performance Issues",
-  "description": "Experiencing elevated response times",
-  "status": "investigating",
-  "impact": "minor",
-  "affectedServices": "[1,2]"
+	"title": "API Performance Issues",
+	"description": "Experiencing elevated response times",
+	"status": "investigating",
+	"impact": "minor",
+	"affectedServices": "[1,2]"
 }
 ```
 
@@ -227,23 +236,25 @@ Manage Service Level Objectives and monitoring.
 List all SLOs.
 
 **Query Parameters:**
+
 - `service_id` (optional): Filter SLOs for a specific service
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "serviceId": 1,
-    "name": "API Availability",
-    "sliType": "availability",
-    "targetPercentage": 99.9,
-    "timeWindowDays": 30,
-    "latencyThresholdMs": 500,
-    "enabled": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"serviceId": 1,
+		"name": "API Availability",
+		"sliType": "availability",
+		"targetPercentage": 99.9,
+		"timeWindowDays": 30,
+		"latencyThresholdMs": 500,
+		"enabled": true,
+		"createdAt": "2024-01-01T00:00:00.000Z",
+		"updatedAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -252,19 +263,21 @@ List all SLOs.
 Create a new SLO.
 
 **Request Body:**
+
 ```json
 {
-  "serviceId": 1,
-  "name": "API Availability",
-  "sliType": "availability",
-  "targetPercentage": 99.9,
-  "timeWindowDays": 30,
-  "latencyThresholdMs": 500,
-  "enabled": true
+	"serviceId": 1,
+	"name": "API Availability",
+	"sliType": "availability",
+	"targetPercentage": 99.9,
+	"timeWindowDays": 30,
+	"latencyThresholdMs": 500,
+	"enabled": true
 }
 ```
 
 **SLI Types:**
+
 - `availability`: Tracks uptime percentage
 - `latency`: Tracks response time thresholds
 
@@ -281,18 +294,20 @@ Delete an SLO.
 Get calculated SLO metrics and burn rate.
 
 **Query Parameters:**
+
 - `slo_id` (required): SLO ID to get metrics for
 
 **Response:**
+
 ```json
 {
-  "sloId": 1,
-  "currentSLI": 99.8,
-  "burnRate": 2.5,
-  "errorBudgetConsumed": 45.2,
-  "isFastBurn": false,
-  "timeWindowStart": "2024-01-01T00:00:00.000Z",
-  "timeWindowEnd": "2024-01-31T00:00:00.000Z"
+	"sloId": 1,
+	"currentSLI": 99.8,
+	"burnRate": 2.5,
+	"errorBudgetConsumed": 45.2,
+	"isFastBurn": false,
+	"timeWindowStart": "2024-01-01T00:00:00.000Z",
+	"timeWindowEnd": "2024-01-31T00:00:00.000Z"
 }
 ```
 
@@ -305,17 +320,18 @@ Manage webhook notification channels.
 List all notification channels.
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "Slack Alerts",
-    "type": "webhook",
-    "config": "{\"url\":\"https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK\",\"format\":\"slack\"}",
-    "enabled": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"name": "Slack Alerts",
+		"type": "webhook",
+		"config": "{\"url\":\"https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK\",\"format\":\"slack\"}",
+		"enabled": true,
+		"createdAt": "2024-01-01T00:00:00.000Z",
+		"updatedAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -324,16 +340,18 @@ List all notification channels.
 Create a new notification channel.
 
 **Request Body:**
+
 ```json
 {
-  "name": "Slack Alerts",
-  "type": "webhook",
-  "config": "{\"url\":\"https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK\",\"format\":\"slack\",\"headers\":{\"Authorization\":\"Bearer token\"}}",
-  "enabled": true
+	"name": "Slack Alerts",
+	"type": "webhook",
+	"config": "{\"url\":\"https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK\",\"format\":\"slack\",\"headers\":{\"Authorization\":\"Bearer token\"}}",
+	"enabled": true
 }
 ```
 
 **Channel Types:**
+
 - `webhook`: HTTP webhook notifications
 - `email`: Email notifications (future)
 - `sms`: SMS notifications (future)
@@ -355,19 +373,21 @@ Manage SLO notification rules and burn rate alerts.
 List all SLO notification rules.
 
 **Query Parameters:**
+
 - `slo_id` (optional): Filter notification rules for a specific SLO
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "sloId": 1,
-    "notificationChannelId": 1,
-    "burnRateThreshold": 10,
-    "enabled": true,
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"sloId": 1,
+		"notificationChannelId": 1,
+		"burnRateThreshold": 10,
+		"enabled": true,
+		"createdAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -376,12 +396,13 @@ List all SLO notification rules.
 Create a new SLO notification rule.
 
 **Request Body:**
+
 ```json
 {
-  "sloId": 1,
-  "notificationChannelId": 1,
-  "burnRateThreshold": 10,
-  "enabled": true
+	"sloId": 1,
+	"notificationChannelId": 1,
+	"burnRateThreshold": 10,
+	"enabled": true
 }
 ```
 
@@ -402,13 +423,14 @@ Manage status page settings.
 Get page configuration.
 
 **Response:**
+
 ```json
 {
-  "title": "System Status",
-  "description": "Current status of all services",
-  "logoUrl": null,
-  "customCss": null,
-  "updatedAt": "2024-01-01T00:00:00.000Z"
+	"title": "System Status",
+	"description": "Current status of all services",
+	"logoUrl": null,
+	"customCss": null,
+	"updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
@@ -417,12 +439,13 @@ Get page configuration.
 Update page configuration.
 
 **Request Body:**
+
 ```json
 {
-  "title": "System Status",
-  "description": "Current status of all services",
-  "logoUrl": "https://example.com/logo.png",
-  "customCss": "body { font-family: 'Custom Font'; }"
+	"title": "System Status",
+	"description": "Current status of all services",
+	"logoUrl": "https://example.com/logo.png",
+	"customCss": "body { font-family: 'Custom Font'; }"
 }
 ```
 
@@ -435,17 +458,18 @@ Access historical status check data.
 Get status check history for a service.
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "serviceId": 1,
-    "status": "up",
-    "responseTimeMs": 245,
-    "statusCode": 200,
-    "errorMessage": null,
-    "checkedAt": "2024-01-01T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"serviceId": 1,
+		"status": "up",
+		"responseTimeMs": 245,
+		"statusCode": 200,
+		"errorMessage": null,
+		"checkedAt": "2024-01-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -458,9 +482,10 @@ Administrative and utility endpoints.
 Manually trigger status checks for all enabled services.
 
 **Response:**
+
 ```json
 {
-  "message": "Status checks triggered"
+	"message": "Status checks triggered"
 }
 ```
 
@@ -469,10 +494,11 @@ Manually trigger status checks for all enabled services.
 Test webhook notification delivery.
 
 **Request Body:**
+
 ```json
 {
-  "notificationChannelId": 1,
-  "testMessage": "This is a test notification"
+	"notificationChannelId": 1,
+	"testMessage": "This is a test notification"
 }
 ```
 
@@ -485,6 +511,7 @@ Public RSS feeds for incident updates.
 RSS 2.0 feed of incident updates.
 
 **Response:**
+
 - Content-Type: `application/rss+xml`
 
 #### GET /feed
@@ -496,6 +523,7 @@ Alternative RSS endpoint.
 RSS feed with .xml extension.
 
 **RSS Feed Features:**
+
 - Latest 50 incidents with full timeline
 - Proper RSS 2.0 standard compliance
 - Auto-discovery links in HTML head
@@ -510,24 +538,25 @@ RSS feed with .xml extension.
 SLO burn rate alerts are sent as HTTP POST requests to configured webhook URLs.
 
 **Example Payload:**
+
 ```json
 {
-  "alertType": "slo_burn_rate_alert",
-  "slo": {
-    "id": 1,
-    "name": "API Availability",
-    "serviceName": "Main API",
-    "targetPercentage": 99.9,
-    "timeWindowDays": 30
-  },
-  "metrics": {
-    "currentSLI": 98.5,
-    "burnRate": 15.2,
-    "errorBudgetConsumed": 85.3,
-    "isFastBurn": true
-  },
-  "timestamp": "2024-01-15T10:30:00Z",
-  "dashboardUrl": "https://your-status.workers.dev/admin"
+	"alertType": "slo_burn_rate_alert",
+	"slo": {
+		"id": 1,
+		"name": "API Availability",
+		"serviceName": "Main API",
+		"targetPercentage": 99.9,
+		"timeWindowDays": 30
+	},
+	"metrics": {
+		"currentSLI": 98.5,
+		"burnRate": 15.2,
+		"errorBudgetConsumed": 85.3,
+		"isFastBurn": true
+	},
+	"timestamp": "2024-01-15T10:30:00Z",
+	"dashboardUrl": "https://your-status.workers.dev/admin"
 }
 ```
 
@@ -537,24 +566,24 @@ For Slack notifications, webhooks are formatted according to Slack's incoming we
 
 ```json
 {
-  "text": "SLO Alert: API Availability",
-  "attachments": [
-    {
-      "color": "danger",
-      "fields": [
-        {
-          "title": "Current SLI",
-          "value": "98.5%",
-          "short": true
-        },
-        {
-          "title": "Burn Rate",
-          "value": "15.2x",
-          "short": true
-        }
-      ]
-    }
-  ]
+	"text": "SLO Alert: API Availability",
+	"attachments": [
+		{
+			"color": "danger",
+			"fields": [
+				{
+					"title": "Current SLI",
+					"value": "98.5%",
+					"short": true
+				},
+				{
+					"title": "Burn Rate",
+					"value": "15.2x",
+					"short": true
+				}
+			]
+		}
+	]
 }
 ```
 
@@ -631,7 +660,7 @@ All API endpoints return error responses in the following format:
 
 ```json
 {
-  "error": "Error message describing what went wrong"
+	"error": "Error message describing what went wrong"
 }
 ```
 
@@ -654,24 +683,24 @@ Currently, no rate limiting is implemented. For production deployments, consider
 
 ```typescript
 interface Service {
-  id: number;
-  name: string;
-  url: string;
-  monitorType: 'http' | 'keyword' | 'api' | 'postgresql' | 'mysql';
-  method: string;
-  expectedStatus: number;
-  expectedContent?: string;
-  keyword?: string;
-  requestBody?: string;
-  requestHeaders?: string;
-  bearerToken?: string;
-  hyperdriveId?: string;
-  postgresqlQuery?: string;
-  timeoutMs: number;
-  categoryId?: number;
-  enabled: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+	id: number;
+	name: string;
+	url: string;
+	monitorType: 'http' | 'keyword' | 'api' | 'postgresql' | 'mysql';
+	method: string;
+	expectedStatus: number;
+	expectedContent?: string;
+	keyword?: string;
+	requestBody?: string;
+	requestHeaders?: string;
+	bearerToken?: string;
+	hyperdriveId?: string;
+	postgresqlQuery?: string;
+	timeoutMs: number;
+	categoryId?: number;
+	enabled: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 }
 ```
 
@@ -679,16 +708,16 @@ interface Service {
 
 ```typescript
 interface SLO {
-  id: number;
-  serviceId: number;
-  name: string;
-  sliType: 'availability' | 'latency';
-  targetPercentage: number;
-  timeWindowDays: number;
-  latencyThresholdMs?: number;
-  enabled: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+	id: number;
+	serviceId: number;
+	name: string;
+	sliType: 'availability' | 'latency';
+	targetPercentage: number;
+	timeWindowDays: number;
+	latencyThresholdMs?: number;
+	enabled: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 }
 ```
 
@@ -696,13 +725,13 @@ interface SLO {
 
 ```typescript
 interface StatusCheck {
-  id: number;
-  serviceId: number;
-  status: 'up' | 'down' | 'degraded';
-  responseTimeMs?: number;
-  statusCode?: number;
-  errorMessage?: string;
-  checkedAt: Date;
+	id: number;
+	serviceId: number;
+	status: 'up' | 'down' | 'degraded';
+	responseTimeMs?: number;
+	statusCode?: number;
+	errorMessage?: string;
+	checkedAt: Date;
 }
 ```
 
@@ -710,13 +739,13 @@ interface StatusCheck {
 
 ```typescript
 interface NotificationChannel {
-  id: number;
-  name: string;
-  type: 'webhook' | 'email' | 'sms';
-  config: string; // JSON configuration
-  enabled: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+	id: number;
+	name: string;
+	type: 'webhook' | 'email' | 'sms';
+	config: string; // JSON configuration
+	enabled: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 }
 ```
 
@@ -731,8 +760,8 @@ const apiBase = 'https://your-worker.your-subdomain.workers.dev';
 const apiKey = 'your-admin-password';
 
 const headers = {
-  'X-API-Key': apiKey,
-  'Content-Type': 'application/json'
+	'X-API-Key': apiKey,
+	'Content-Type': 'application/json',
 };
 
 // Get all services
@@ -741,28 +770,28 @@ const services = await response.json();
 
 // Create a service
 const newService = await fetch(`${apiBase}/api/services`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    name: 'My API',
-    url: 'https://myapi.example.com/health',
-    monitorType: 'http',
-    expectedStatus: 200
-  }),
+	method: 'POST',
+	headers,
+	body: JSON.stringify({
+		name: 'My API',
+		url: 'https://myapi.example.com/health',
+		monitorType: 'http',
+		expectedStatus: 200,
+	}),
 });
 
 // Create an SLO
 const newSLO = await fetch(`${apiBase}/api/slos`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    serviceId: 1,
-    name: 'API Availability',
-    sliType: 'availability',
-    targetPercentage: 99.9,
-    timeWindowDays: 30,
-    enabled: true
-  }),
+	method: 'POST',
+	headers,
+	body: JSON.stringify({
+		serviceId: 1,
+		name: 'API Availability',
+		sliType: 'availability',
+		targetPercentage: 99.9,
+		timeWindowDays: 30,
+		enabled: true,
+	}),
 });
 ```
 

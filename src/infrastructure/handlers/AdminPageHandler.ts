@@ -1,8 +1,5 @@
-// Define Env interface locally since types file may not exist
-export interface Env {
-	STATUSFLARE_ADMIN_PASSWORD: string;
-	[key: string]: any;
-}
+// Use the global Env interface from worker-configuration.d.ts
+// STATUSFLARE_ADMIN_PASSWORD is a secret that needs to be added via wrangler
 
 export interface AuthResult {
 	authenticated: boolean;
@@ -10,7 +7,7 @@ export interface AuthResult {
 }
 
 export class AdminPageHandler {
-	checkAdminAuth(request: Request, env: Env): AuthResult {
+	checkAdminAuth(request: Request, env: any): AuthResult {
 		const authHeader = request.headers.get('Authorization');
 		const expectedAuth = `Basic ${btoa(`admin:${env.STATUSFLARE_ADMIN_PASSWORD}`)}`;
 
@@ -32,7 +29,7 @@ export class AdminPageHandler {
 		};
 	}
 
-	async handleAdminPage(request: Request, env: Env): Promise<Response> {
+	async handleAdminPage(request: Request, env: any): Promise<Response> {
 		// Check authentication
 		const authResult = this.checkAdminAuth(request, env);
 		if (!authResult.authenticated) {

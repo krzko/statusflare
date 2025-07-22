@@ -12,11 +12,14 @@ export interface NotificationService {
 export class DefaultNotificationService implements NotificationService {
 	constructor(private baseUrl: string) {}
 
-	async sendAlert(webhookUrlOrPayload: string | SLOAlertPayload, payloadOrChannel?: SLOAlertPayload | NotificationChannel): Promise<boolean> {
+	async sendAlert(
+		webhookUrlOrPayload: string | SLOAlertPayload,
+		payloadOrChannel?: SLOAlertPayload | NotificationChannel
+	): Promise<boolean> {
 		// Handle overloaded method signatures
 		let payload: SLOAlertPayload;
 		let channel: NotificationChannel;
-		
+
 		if (typeof webhookUrlOrPayload === 'string') {
 			// sendAlert(webhookUrl, payload) signature
 			const webhookUrl = webhookUrlOrPayload;
@@ -107,13 +110,16 @@ export class DefaultNotificationService implements NotificationService {
 		}
 	}
 
-	private async sendEmail(payload: SLOAlertPayload, channel: NotificationChannel): Promise<boolean> {
+	private async sendEmail(
+		payload: SLOAlertPayload,
+		_channel: NotificationChannel
+	): Promise<boolean> {
 		// TODO: Implement email sending via Cloudflare Email Workers or external service
 		console.log('Email notification not yet implemented:', payload);
 		return false;
 	}
 
-	private async sendSMS(payload: SLOAlertPayload, channel: NotificationChannel): Promise<boolean> {
+	private async sendSMS(payload: SLOAlertPayload, _channel: NotificationChannel): Promise<boolean> {
 		// TODO: Implement SMS sending via Twilio or AWS SNS
 		console.log('SMS notification not yet implemented:', payload);
 		return false;
@@ -143,7 +149,7 @@ export class DefaultNotificationService implements NotificationService {
 			alert: {
 				burnRate: 0,
 				errorBudgetConsumed: 0,
-				timeToExhaustionHours: null,
+				timeToExhaustionHours: undefined,
 				currentSli: 100,
 			},
 			dashboardUrl: `${this.baseUrl}/dashboard`,
@@ -165,7 +171,7 @@ export class DefaultNotificationService implements NotificationService {
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};
-		
+
 		return await this.sendAlert(testPayload, channel);
 	}
 

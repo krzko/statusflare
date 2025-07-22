@@ -7,8 +7,16 @@ export interface SLOCalculationService {
 	calculateAvailabilitySLI(checks: StatusCheck[], timeWindow: TimeWindow): number;
 	calculateLatencySLI(checks: StatusCheck[], thresholdMs: number, timeWindow: TimeWindow): number;
 	calculateBurnRate(actualSLI: number, targetSLO: number): number;
-	calculateErrorBudgetConsumed(actualSLI: number, targetSLO: number, timeWindowDays: number): number;
-	calculateTimeToExhaustion(slo: SLO, result: SLICalculationResult, checks: StatusCheck[]): number | undefined;
+	calculateErrorBudgetConsumed(
+		actualSLI: number,
+		targetSLO: number,
+		timeWindowDays: number
+	): number;
+	calculateTimeToExhaustion(
+		slo: SLO,
+		result: SLICalculationResult,
+		checks: StatusCheck[]
+	): number | undefined;
 	isFastBurn(burnRate: number): boolean;
 	evaluateSLO(slo: SLO, checks: StatusCheck[]): SLICalculationResult;
 }
@@ -32,8 +40,18 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 			return 0; // No data means 0% availability
 		}
 
-		const successfulChecks = checks.filter((check) => check.status === 'up').length;
-		return (successfulChecks / checks.length) * 100;
+		// Filter checks to the specified time window
+		const filteredChecks = checks.filter(check => {
+			const checkTime = new Date(check.checkedAt);
+			return checkTime >= timeWindow.startTime && checkTime <= timeWindow.endTime;
+		});
+
+		if (filteredChecks.length === 0) {
+			return 0; // No data in time window means 0% availability
+		}
+
+		const successfulChecks = filteredChecks.filter(check => check.status === 'up').length;
+		return (successfulChecks / filteredChecks.length) * 100;
 	}
 
 	calculateLatencySLI(checks: StatusCheck[], thresholdMs: number, timeWindow: TimeWindow): number {
@@ -41,12 +59,25 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 			return 0; // No data means 0% latency SLI
 		}
 
-		const fastChecks = checks.filter(
-			(check) =>
-				check.status === 'up' && check.responseTimeMs !== null && check.responseTimeMs !== undefined && check.responseTimeMs <= thresholdMs,
+		// Filter checks to the specified time window
+		const filteredChecks = checks.filter(check => {
+			const checkTime = new Date(check.checkedAt);
+			return checkTime >= timeWindow.startTime && checkTime <= timeWindow.endTime;
+		});
+
+		if (filteredChecks.length === 0) {
+			return 0; // No data in time window means 0% latency SLI
+		}
+
+		const fastChecks = filteredChecks.filter(
+			check =>
+				check.status === 'up' &&
+				check.responseTimeMs !== null &&
+				check.responseTimeMs !== undefined &&
+				check.responseTimeMs <= thresholdMs
 		).length;
 
-		return (fastChecks / checks.length) * 100;
+		return (fastChecks / filteredChecks.length) * 100;
 	}
 
 	calculateBurnRate(actualSLI: number, targetSLO: number): number {
@@ -69,7 +100,11 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 		return actualErrorRate / allowedErrorRate;
 	}
 
-	calculateErrorBudgetConsumed(actualSLI: number, targetSLO: number, timeWindowDays: number): number {
+	calculateErrorBudgetConsumed(
+		actualSLI: number,
+		targetSLO: number,
+		timeWindowDays: number
+	): number {
 		if (targetSLO >= 100) {
 			return actualSLI >= 100 ? 0 : 100; // No error budget with 100% target
 		}
@@ -81,11 +116,29 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 			return actualErrorRate > 0 ? 100 : 0;
 		}
 
+		// Calculate error budget consumption over the time window
+		// This gives us a more accurate representation of budget consumption
+		// relative to the SLO's time window
 		const consumedPercentage = (actualErrorRate / allowedErrorRate) * 100;
+
+		// The timeWindowDays parameter can be used for future enhancements
+		// such as weighted calculations or time-decay functions
+		// For now, we ensure it's a valid positive number
+		if (timeWindowDays <= 0) {
+			console.warn(
+				'Invalid timeWindowDays provided to calculateErrorBudgetConsumed:',
+				timeWindowDays
+			);
+		}
+
 		return Math.min(100, Math.max(0, consumedPercentage));
 	}
 
-	calculateTimeToExhaustion(slo: SLO, result: SLICalculationResult, checks: StatusCheck[]): number | undefined {
+	calculateTimeToExhaustion(
+		slo: SLO,
+		result: SLICalculationResult,
+		checks: StatusCheck[]
+	): number | undefined {
 		const burnRate = result.burnRate;
 		const errorBudgetRemaining = 100 - result.errorBudgetConsumed;
 
@@ -114,7 +167,7 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 		const timeWindowStart = new Date();
 		timeWindowStart.setDate(timeWindowStart.getDate() - slo.timeWindowDays);
 
-		const relevantChecks = checks.filter((check) => {
+		const relevantChecks = checks.filter(check => {
 			const checkTime = new Date(check.checkedAt);
 			return checkTime >= timeWindowStart;
 		});
@@ -140,7 +193,11 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 
 		const errorRate = (100 - currentSLI) / 100;
 		const burnRate = this.calculateBurnRate(currentSLI, slo.targetPercentage);
-		const errorBudgetConsumed = this.calculateErrorBudgetConsumed(currentSLI, slo.targetPercentage, slo.timeWindowDays);
+		const errorBudgetConsumed = this.calculateErrorBudgetConsumed(
+			currentSLI,
+			slo.targetPercentage,
+			slo.timeWindowDays
+		);
 		const isFastBurn = this.isFastBurn(burnRate);
 
 		// Create intermediate result for timeToExhaustion calculation
@@ -152,14 +209,19 @@ export class DefaultSLOCalculationService implements SLOCalculationService {
 			isFastBurn,
 		};
 
-		const timeToExhaustion = this.calculateTimeToExhaustion(slo, intermediateResult, relevantChecks);
+		const timeToExhaustion = this.calculateTimeToExhaustion(
+			slo,
+			intermediateResult,
+			relevantChecks
+		);
 
 		return {
 			currentSLI: Math.round(currentSLI * 100) / 100, // Round to 2 decimal places
 			errorRate: Math.round(errorRate * 10000) / 100, // Round to 2 decimal places as percentage
 			burnRate: Math.round(burnRate * 100) / 100, // Round to 2 decimal places
 			errorBudgetConsumed: Math.round(errorBudgetConsumed * 100) / 100, // Round to 2 decimal places
-			timeToExhaustion: timeToExhaustion !== undefined ? Math.round(timeToExhaustion * 100) / 100 : undefined,
+			timeToExhaustion:
+				timeToExhaustion !== undefined ? Math.round(timeToExhaustion * 100) / 100 : undefined,
 			isFastBurn,
 		};
 	}

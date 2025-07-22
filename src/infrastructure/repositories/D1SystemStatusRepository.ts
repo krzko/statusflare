@@ -1,11 +1,17 @@
 import { SystemStatusRepository } from '../../domain/repositories/SystemStatusRepository';
-import { SystemStatus, UpdateSystemStatusRequest, OverallStatus } from '../../domain/entities/SystemStatus';
+import {
+	SystemStatus,
+	UpdateSystemStatusRequest,
+	OverallStatus,
+} from '../../domain/entities/SystemStatus';
 
 export class D1SystemStatusRepository implements SystemStatusRepository {
 	constructor(private db: D1Database) {}
 
 	async get(): Promise<SystemStatus> {
-		const result = await this.db.prepare('SELECT * FROM system_status WHERE id = 1').first<SystemStatus>();
+		const result = await this.db
+			.prepare('SELECT * FROM system_status WHERE id = 1')
+			.first<SystemStatus>();
 
 		if (!result) {
 			// Create default system status if it doesn't exist
@@ -14,7 +20,7 @@ export class D1SystemStatusRepository implements SystemStatusRepository {
 					`
 				INSERT INTO system_status (id, overall_status, banner_message, auto_banner, manual_banner_status)
 				VALUES (1, 'operational', 'All Systems Operational', true, 'operational')
-			`,
+			`
 				)
 				.run();
 

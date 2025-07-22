@@ -5,7 +5,7 @@ export interface HealthCheckResult {
 	status: ServiceStatus;
 	responseTimeMs?: number;
 	statusCode?: number;
-	errorMessage?: string;
+	errorMessage?: string | null;
 }
 
 export interface HealthCheckService {

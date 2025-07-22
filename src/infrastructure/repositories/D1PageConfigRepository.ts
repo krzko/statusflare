@@ -5,7 +5,9 @@ export class D1PageConfigRepository implements PageConfigRepository {
 	constructor(private db: D1Database) {}
 
 	async get(): Promise<PageConfig> {
-		const result = await this.db.prepare('SELECT * FROM page_config WHERE id = 1').first<PageConfig>();
+		const result = await this.db
+			.prepare('SELECT * FROM page_config WHERE id = 1')
+			.first<PageConfig>();
 
 		if (!result) {
 			throw new Error('Page configuration not found');

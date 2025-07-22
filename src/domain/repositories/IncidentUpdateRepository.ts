@@ -1,4 +1,8 @@
-import { IncidentUpdate, CreateIncidentUpdateRequest, UpdateIncidentUpdateRequest } from '../entities/IncidentUpdate';
+import {
+	IncidentUpdate,
+	CreateIncidentUpdateRequest,
+	UpdateIncidentUpdateRequest,
+} from '../entities/IncidentUpdate';
 
 export interface IncidentUpdateRepository {
 	findAll(): Promise<IncidentUpdate[]>;

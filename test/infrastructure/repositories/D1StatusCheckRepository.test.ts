@@ -61,7 +61,9 @@ describe('D1StatusCheckRepository', () => {
 
 			const checks = await repository.findByServiceId(100);
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith('SELECT * FROM status_checks WHERE service_id = ? ORDER BY checked_at DESC LIMIT ?');
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				'SELECT * FROM status_checks WHERE service_id = ? ORDER BY checked_at DESC LIMIT ?'
+			);
 			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(100, 100);
 			expect(checks).toHaveLength(1);
 			expect(checks[0]).toMatchObject({ id: expect.any(Number), serviceId: expect.any(Number) });
@@ -98,8 +100,14 @@ describe('D1StatusCheckRepository', () => {
 
 			const checks = await repository.findByServiceIdInTimeRange(100, startDate, endDate);
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith(expect.stringContaining('WHERE service_id = ?'));
-			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(100, startDate.toISOString(), endDate.toISOString());
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				expect.stringContaining('WHERE service_id = ?')
+			);
+			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(
+				100,
+				startDate.toISOString(),
+				endDate.toISOString()
+			);
 			expect(checks).toHaveLength(1);
 		});
 
@@ -128,7 +136,7 @@ describe('D1StatusCheckRepository', () => {
 			const checks = await repository.findByServiceId(100, 10);
 
 			expect(mockD1Database.prepare).toHaveBeenCalledWith(
-				'SELECT * FROM status_checks WHERE service_id = ? ORDER BY checked_at DESC LIMIT ?',
+				'SELECT * FROM status_checks WHERE service_id = ? ORDER BY checked_at DESC LIMIT ?'
 			);
 			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(100, 10);
 			expect(checks).toHaveLength(1);
@@ -169,10 +177,11 @@ describe('D1StatusCheckRepository', () => {
 
 			const savedCheck = await repository.create(newCheck);
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO status_checks'));
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				expect.stringContaining('INSERT INTO status_checks')
+			);
 			expect(savedCheck.id).toBe(2);
 		});
-
 
 		it('should handle insert failures', async () => {
 			const newCheck = createMockStatusCheck({
@@ -199,7 +208,9 @@ describe('D1StatusCheckRepository', () => {
 
 			await repository.deleteOld(7);
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith('DELETE FROM status_checks WHERE checked_at < datetime("now", "-" || ? || " days")');
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				'DELETE FROM status_checks WHERE checked_at < datetime("now", "-" || ? || " days")'
+			);
 		});
 
 		it('should handle deletion failures', async () => {
@@ -219,7 +230,6 @@ describe('D1StatusCheckRepository', () => {
 			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(1);
 		});
 	});
-
 
 	describe('data transformation', () => {
 		it('should correctly transform database row to StatusCheck entity', async () => {
@@ -282,7 +292,13 @@ describe('D1StatusCheckRepository', () => {
 
 			await repository.create(newCheck);
 
-			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(200, 'down', null, 500, 'Timeout occurred');
+			expect(mockPreparedStatement.bind).toHaveBeenCalledWith(
+				200,
+				'down',
+				null,
+				500,
+				'Timeout occurred'
+			);
 		});
 
 		it('should handle null error messages correctly', async () => {
@@ -354,7 +370,9 @@ describe('D1StatusCheckRepository', () => {
 			await repository.findByServiceId(100);
 
 			// Verify that the query structure supports indexing on service_id
-			expect(mockD1Database.prepare).toHaveBeenCalledWith(expect.stringContaining('WHERE service_id = ?'));
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				expect.stringContaining('WHERE service_id = ?')
+			);
 		});
 
 		it('should limit results in recent queries to prevent memory issues', async () => {

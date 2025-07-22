@@ -1,4 +1,8 @@
-import { PageGeneratorService, StatusPageData, CategoryStatusData } from '../../domain/services/PageGeneratorService';
+import {
+	PageGeneratorService,
+	StatusPageData,
+	CategoryStatusData,
+} from '../../domain/services/PageGeneratorService';
 import { StatusPageHtmlGenerator } from './StatusPageHtmlGenerator';
 
 interface LegacyServiceStatusData {
@@ -22,13 +26,15 @@ export class StatusPageAdapter implements PageGeneratorService {
 		return this.generator.generateStatusPage(data);
 	}
 
-	private calculateOverallStatus(services: LegacyServiceStatusData[]): 'operational' | 'degraded' | 'major_outage' {
+	private calculateOverallStatus(
+		services: LegacyServiceStatusData[]
+	): 'operational' | 'degraded' | 'major_outage' {
 		if (services.length === 0) {
 			return 'operational';
 		}
 
-		const hasDown = services.some((s) => s.status === 'down');
-		const hasDegraded = services.some((s) => s.status === 'degraded');
+		const hasDown = services.some(s => s.status === 'down');
+		const hasDegraded = services.some(s => s.status === 'degraded');
 
 		if (hasDown) {
 			return 'major_outage';
@@ -61,7 +67,7 @@ export class StatusPageAdapter implements PageGeneratorService {
 			description: 'Core application services',
 			status: this.calculateOverallStatus(services),
 			uptime: this.calculateAverageUptime(services),
-			services: services.map((service) => ({
+			services: services.map(service => ({
 				id: service.id,
 				name: service.name,
 				status: service.status,
@@ -83,7 +89,9 @@ export class StatusPageAdapter implements PageGeneratorService {
 		return totalUptime / services.length;
 	}
 
-	private generateCategoryHistory(services: LegacyServiceStatusData[]): Array<{ timestamp: Date; status: string; responseTime?: number }> {
+	private generateCategoryHistory(
+		services: LegacyServiceStatusData[]
+	): Array<{ timestamp: Date; status: string; responseTime?: number }> {
 		if (services.length === 0) {
 			return [];
 		}
@@ -94,12 +102,14 @@ export class StatusPageAdapter implements PageGeneratorService {
 			return [];
 		}
 
-		return firstService.history.map((point) => ({
+		return firstService.history.map(point => ({
 			timestamp: point.timestamp,
 			status: this.calculateOverallStatus(services), // Simplified - in reality would calculate per time point
 			responseTime:
 				services.reduce((sum, s) => {
-					const historyPoint = s.history.find((h) => h.timestamp.getTime() === point.timestamp.getTime());
+					const historyPoint = s.history.find(
+						h => h.timestamp.getTime() === point.timestamp.getTime()
+					);
 					return sum + (historyPoint?.responseTime || 0);
 				}, 0) / services.length,
 		}));

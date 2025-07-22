@@ -538,7 +538,7 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
             ${data.bannerMessage}
         </div>
         
-        ${data.categories.map((category) => this.generateCategoryCard(category)).join('')}
+        ${data.categories.map(category => this.generateCategoryCard(category)).join('')}
         
         <div class="incidents-section">
             <h2 class="incidents-title">Past Incidents</h2>
@@ -579,12 +579,13 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		const historyBars = this.generateCategoryHistoryBars(category);
 
 		const servicesList = category.services
-			.map((service) => {
+			.map(service => {
 				// Generate service history bars based on latency or use placeholders
 				const serviceHistoryBars = this.generateServiceHistoryBars(service);
 
 				// Calculate average response time for display
-				const avgResponseTime = service.responseTime || this.calculateAverageResponseTime(service.history);
+				const avgResponseTime =
+					service.responseTime || this.calculateAverageResponseTime(service.history);
 				const latencyDisplay = avgResponseTime ? `${Math.round(avgResponseTime)}ms` : 'N/A';
 
 				return `
@@ -641,7 +642,7 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 	private generateIncidents(incidents: IncidentData[]): string {
 		// Group incidents by date
 		const incidentsByDate: { [key: string]: IncidentData[] } = {};
-		incidents.forEach((incident) => {
+		incidents.forEach(incident => {
 			const dateKey = this.formatDateOnly(incident.startedAt);
 			if (!incidentsByDate[dateKey]) {
 				incidentsByDate[dateKey] = [];
@@ -664,9 +665,9 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 			${
 				dayIncidents.length === 0
 					? '<div class="no-incidents">No incidents reported today.</div>'
-					: dayIncidents.map((incident) => this.generateIncident(incident)).join('')
+					: dayIncidents.map(incident => this.generateIncident(incident)).join('')
 			}
-		</div>`,
+		</div>`
 			)
 			.join('');
 	}
@@ -692,8 +693,9 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		const additionalUpdates =
 			incident.updates.length > 0
 				? incident.updates
-						.map((update) => {
-							const updateClass = update.status === 'resolved' ? 'resolved-update' : 'subsequent-update';
+						.map(update => {
+							const updateClass =
+								update.status === 'resolved' ? 'resolved-update' : 'subsequent-update';
 							return `
 			<div class="incident-update ${updateClass}">
 				<div class="update-header">
@@ -731,7 +733,10 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		if (history.length === 0) {
 			return Array(maxBars)
 				.fill(0)
-				.map(() => `<div class="history-bar" style="background: #e2e8f0;" title="No data available"></div>`)
+				.map(
+					() =>
+						`<div class="history-bar" style="background: #e2e8f0;" title="No data available"></div>`
+				)
 				.join('');
 		}
 
@@ -748,7 +753,7 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		const displayHistory = paddedHistory.slice(-maxBars);
 
 		return displayHistory
-			.map((point) => {
+			.map(point => {
 				if (point.status === 'unknown') {
 					// Grey placeholder for missing data
 					return `<div class="history-bar" style="background: #e2e8f0;" title="No data available"></div>`;
@@ -768,12 +773,17 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		if (history.length === 0) {
 			return Array(maxBars)
 				.fill(0)
-				.map(() => `<div class="history-bar" style="background: #e2e8f0; height: 15px;" title="No data available"></div>`)
+				.map(
+					() =>
+						`<div class="history-bar" style="background: #e2e8f0; height: 15px;" title="No data available"></div>`
+				)
 				.join('');
 		}
 
 		// Find min/max response times for scaling
-		const responseTimes = history.filter((point) => point.responseTime !== undefined).map((point) => point.responseTime!);
+		const responseTimes = history
+			.filter(point => point.responseTime !== undefined)
+			.map(point => point.responseTime!);
 		const minResponseTime = Math.min(...responseTimes, 0);
 		const maxResponseTime = Math.max(...responseTimes, 1000);
 
@@ -791,14 +801,15 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		const displayHistory = paddedHistory.slice(-maxBars);
 
 		return displayHistory
-			.map((point) => {
+			.map(point => {
 				if (!point.responseTime) {
 					// Grey placeholder for missing data
 					return `<div class="history-bar" style="background: #e2e8f0; height: 15px;" title="No data available"></div>`;
 				}
 
 				// Calculate height based on response time (inverted - faster = taller)
-				const normalizedHeight = 1 - (point.responseTime - minResponseTime) / (maxResponseTime - minResponseTime);
+				const normalizedHeight =
+					1 - (point.responseTime - minResponseTime) / (maxResponseTime - minResponseTime);
 				const height = Math.max(5, Math.min(30, 5 + normalizedHeight * 25)); // 5px to 30px range
 
 				// Color based on status
@@ -824,7 +835,9 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 			return undefined;
 		}
 
-		const responseTimes = history.filter((point) => point.responseTime && point.responseTime > 0).map((point) => point.responseTime);
+		const responseTimes = history
+			.filter(point => point.responseTime && point.responseTime > 0)
+			.map(point => point.responseTime);
 
 		if (responseTimes.length === 0) {
 			return undefined;
@@ -948,7 +961,11 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 		}
 	}
 
-	private calculateServiceStatusCounts(services: ServiceStatusData[]): { operational: number; degraded: number; down: number } {
+	private calculateServiceStatusCounts(services: ServiceStatusData[]): {
+		operational: number;
+		degraded: number;
+		down: number;
+	} {
 		return services.reduce(
 			(counts, service) => {
 				switch (service.status) {
@@ -966,7 +983,7 @@ export class StatusPageHtmlGenerator implements PageGeneratorService {
 				}
 				return counts;
 			},
-			{ operational: 0, degraded: 0, down: 0 },
+			{ operational: 0, degraded: 0, down: 0 }
 		);
 	}
 }

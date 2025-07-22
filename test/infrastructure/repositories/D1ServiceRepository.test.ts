@@ -131,7 +131,9 @@ describe('D1ServiceRepository', () => {
 
 			const services = await repository.findEnabled();
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith('SELECT * FROM services WHERE enabled = true ORDER BY name');
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				'SELECT * FROM services WHERE enabled = true ORDER BY name'
+			);
 			expect(services).toHaveLength(1);
 			expect(services[0].enabled).toBe(true);
 		});
@@ -175,7 +177,9 @@ describe('D1ServiceRepository', () => {
 
 			const savedService = await repository.create(newService);
 
-			expect(mockD1Database.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO services'));
+			expect(mockD1Database.prepare).toHaveBeenCalledWith(
+				expect.stringContaining('INSERT INTO services')
+			);
 			expect(savedService.id).toBe(2);
 		});
 
@@ -298,7 +302,7 @@ describe('D1ServiceRepository', () => {
 				null, // requestHeaders
 				null, // bearerToken
 				null, // databaseQuery
-				null, // hyperdriveId
+				null // hyperdriveId
 			);
 		});
 	});
@@ -358,7 +362,7 @@ describe('D1ServiceRepository', () => {
 				null, // requestHeaders
 				null, // bearerToken
 				null, // databaseQuery
-				null, // hyperdriveId
+				null // hyperdriveId
 			);
 		});
 	});

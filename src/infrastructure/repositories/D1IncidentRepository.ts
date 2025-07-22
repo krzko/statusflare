@@ -13,12 +13,17 @@ export class D1IncidentRepository implements IncidentRepository {
 	constructor(private db: D1Database) {}
 
 	async findAll(): Promise<Incident[]> {
-		const result = await this.db.prepare('SELECT * FROM incidents ORDER BY started_at DESC').all<Incident>();
+		const result = await this.db
+			.prepare('SELECT * FROM incidents ORDER BY started_at DESC')
+			.all<Incident>();
 		return result.results.map(this.mapToIncident);
 	}
 
 	async findById(id: number): Promise<Incident | null> {
-		const result = await this.db.prepare('SELECT * FROM incidents WHERE id = ?').bind(id).first<Incident>();
+		const result = await this.db
+			.prepare('SELECT * FROM incidents WHERE id = ?')
+			.bind(id)
+			.first<Incident>();
 		return result ? this.mapToIncident(result) : null;
 	}
 
@@ -29,7 +34,7 @@ export class D1IncidentRepository implements IncidentRepository {
 			SELECT * FROM incidents 
 			WHERE status != 'resolved' 
 			ORDER BY started_at DESC
-		`,
+		`
 			)
 			.all<Incident>();
 		return result.results.map(this.mapToIncident);
@@ -42,7 +47,7 @@ export class D1IncidentRepository implements IncidentRepository {
 			SELECT * FROM incidents 
 			WHERE started_at >= datetime('now', '-' || ? || ' days')
 			ORDER BY started_at DESC
-		`,
+		`
 			)
 			.bind(days)
 			.all<Incident>();
@@ -56,9 +61,14 @@ export class D1IncidentRepository implements IncidentRepository {
 				INSERT INTO incidents (title, description, status, severity, started_at)
 				VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
 				RETURNING *
-			`,
+			`
 			)
-			.bind(incident.title, incident.description || null, incident.status || 'identified', incident.severity || 'minor')
+			.bind(
+				incident.title,
+				incident.description || null,
+				incident.status || 'identified',
+				incident.severity || 'minor'
+			)
 			.first<Incident>();
 
 		if (!result) {
@@ -132,7 +142,7 @@ export class D1IncidentRepository implements IncidentRepository {
 				INSERT INTO incident_updates (incident_id, message, status, created_at)
 				VALUES (?, ?, ?, CURRENT_TIMESTAMP)
 				RETURNING *
-			`,
+			`
 			)
 			.bind(update.incidentId, update.message, update.status || null)
 			.first<any>();
@@ -152,7 +162,7 @@ export class D1IncidentRepository implements IncidentRepository {
 				INSERT INTO incident_affected_services (incident_id, service_id)
 				VALUES (?, ?)
 				ON CONFLICT (incident_id, service_id) DO NOTHING
-			`,
+			`
 			)
 			.bind(incidentId, serviceId)
 			.run();

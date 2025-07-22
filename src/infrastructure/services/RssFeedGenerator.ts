@@ -14,10 +14,12 @@ export class RssFeedGenerator {
 		const rssItems = data.incidents
 			.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
 			.slice(0, 50) // Limit to 50 most recent incidents
-			.map((incident) => this.generateRssItem(incident, data.link))
+			.map(incident => this.generateRssItem(incident, data.link))
 			.join('\n');
 
-		const feedTitle = data.titleSuffix ? `${data.title} - ${data.titleSuffix}` : `${data.title} - Incident Updates`;
+		const feedTitle = data.titleSuffix
+			? `${data.title} - ${data.titleSuffix}`
+			: `${data.title} - Incident Updates`;
 
 		return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -55,7 +57,9 @@ ${rssItems}
 
 		// Use the most recent update time, or incident start time if no updates
 		const latestUpdate =
-			incident.updates && incident.updates.length > 0 ? incident.updates[incident.updates.length - 1].createdAt : incident.startedAt;
+			incident.updates && incident.updates.length > 0
+				? incident.updates[incident.updates.length - 1].createdAt
+				: incident.startedAt;
 
 		return `		<item>
 			<title><![CDATA[${status}: ${incident.title}]]></title>
@@ -83,7 +87,7 @@ ${rssItems}
 			description += `<li><strong>${this.formatRssDate(incident.startedAt)}</strong> - ${this.getIncidentStatusText(incident.status)}: ${this.escapeHtml(incident.description || 'Incident reported')}</li>`;
 
 			// Show updates
-			incident.updates.forEach((update) => {
+			incident.updates.forEach(update => {
 				description += `<li><strong>${this.formatRssDate(update.createdAt)}</strong> - ${this.getIncidentStatusText(update.status)}: ${this.escapeHtml(update.message)}</li>`;
 			});
 
@@ -112,7 +116,7 @@ ${rssItems}
 				categories.push('update');
 		}
 
-		return categories.map((cat) => `<category>${cat}</category>`).join('\n\t\t\t');
+		return categories.map(cat => `<category>${cat}</category>`).join('\n\t\t\t');
 	}
 
 	private getIncidentStatusText(status: string): string {
@@ -136,6 +140,11 @@ ${rssItems}
 	}
 
 	private escapeHtml(text: string): string {
-		return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+		return text
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#x27;');
 	}
 }

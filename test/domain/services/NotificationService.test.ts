@@ -80,13 +80,15 @@ describe('DefaultNotificationService', () => {
 			});
 
 			// Should not throw an error
-			await expect(notificationService.sendAlert(webhookUrl, mockAlertPayload)).resolves.not.toThrow();
+			await expect(
+				notificationService.sendAlert(webhookUrl, mockAlertPayload)
+			).resolves.not.toThrow();
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				webhookUrl,
 				expect.objectContaining({
 					method: 'POST',
-				}),
+				})
 			);
 		});
 
@@ -96,7 +98,9 @@ describe('DefaultNotificationService', () => {
 			mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
 			// Should not throw an error
-			await expect(notificationService.sendAlert(webhookUrl, mockAlertPayload)).resolves.not.toThrow();
+			await expect(
+				notificationService.sendAlert(webhookUrl, mockAlertPayload)
+			).resolves.not.toThrow();
 		});
 
 		it('should include correct headers in request', async () => {
@@ -132,11 +136,11 @@ describe('DefaultNotificationService', () => {
 			expect(slackMessage.text).toContain('🚨 SLO Alert:');
 			expect(slackMessage.text).toContain('Test Service');
 			expect(slackMessage.text).toContain('Availability SLO');
-			
+
 			// Check attachment fields
 			const attachment = slackMessage.attachments[0];
 			expect(attachment.color).toBe('danger');
-			
+
 			// Check that fields contain expected values
 			const fields = attachment.fields;
 			expect(fields.find(f => f.title === 'Current SLI')?.value).toBe('98.5%');
@@ -158,11 +162,11 @@ describe('DefaultNotificationService', () => {
 
 			// Check the main text contains alert info
 			expect(slackMessage.text).toContain('🚨 SLO Alert:');
-			
+
 			// Check warning color
 			const attachment = slackMessage.attachments[0];
 			expect(attachment.color).toBe('warning');
-			
+
 			// Check time to exhaustion
 			const fields = attachment.fields;
 			expect(fields.find(f => f.title === 'Time to Exhaustion')?.value).toBe('24.0 hours');
@@ -180,7 +184,7 @@ describe('DefaultNotificationService', () => {
 			// Check the main text for resolved alert
 			expect(slackMessage.text).toContain('✅ SLO Resolved:');
 			expect(slackMessage.text).toContain('Test Service');
-			
+
 			// Check good color for resolved
 			const attachment = slackMessage.attachments[0];
 			expect(attachment.color).toBe('good');
@@ -259,9 +263,9 @@ describe('DefaultNotificationService', () => {
 						'Content-Type': 'application/json',
 					}),
 					body: expect.stringContaining('Test Webhook'),
-				}),
+				})
 			);
-			
+
 			// Verify the payload structure includes test webhook elements
 			const callArgs = mockFetch.mock.calls[0];
 			const body = JSON.parse(callArgs[1].body);
@@ -282,7 +286,7 @@ describe('DefaultNotificationService', () => {
 		it('should validate webhook URL format', () => {
 			const invalidUrls = ['', 'not-a-url', 'ftp://invalid.com', 'javascript:alert(1)'];
 
-			invalidUrls.forEach((url) => {
+			invalidUrls.forEach(url => {
 				expect(() => {
 					// This would be a validation method if implemented
 					const isValid = url.startsWith('http://') || url.startsWith('https://');
@@ -292,9 +296,17 @@ describe('DefaultNotificationService', () => {
 		});
 
 		it('should validate alert payload structure', () => {
-			const requiredFields = ['event', 'timestamp', 'severity', 'service', 'slo', 'alert', 'dashboardUrl'];
+			const requiredFields = [
+				'event',
+				'timestamp',
+				'severity',
+				'service',
+				'slo',
+				'alert',
+				'dashboardUrl',
+			];
 
-			requiredFields.forEach((field) => {
+			requiredFields.forEach(field => {
 				expect(mockAlertPayload).toHaveProperty(field);
 			});
 		});
@@ -324,16 +336,22 @@ describe('DefaultNotificationService', () => {
 				},
 			});
 
-			await expect(notificationService.sendAlert(webhookUrl, mockAlertPayload)).resolves.not.toThrow();
+			await expect(
+				notificationService.sendAlert(webhookUrl, mockAlertPayload)
+			).resolves.not.toThrow();
 		});
 
 		it('should handle timeout scenarios', async () => {
 			const webhookUrl = 'https://hooks.slack.com/webhook';
 
 			// Simulate timeout
-			mockFetch.mockImplementationOnce(() => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100)));
+			mockFetch.mockImplementationOnce(
+				() => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
+			);
 
-			await expect(notificationService.sendAlert(webhookUrl, mockAlertPayload)).resolves.not.toThrow();
+			await expect(
+				notificationService.sendAlert(webhookUrl, mockAlertPayload)
+			).resolves.not.toThrow();
 		});
 	});
 });

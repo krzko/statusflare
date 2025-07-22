@@ -23,7 +23,7 @@ export class GenerateStatusPageUseCase {
 		private systemStatusRepository: SystemStatusRepository,
 		private incidentRepository: IncidentRepository,
 		private incidentUpdateRepository: IncidentUpdateRepository,
-		private pageGeneratorService: PageGeneratorService,
+		private pageGeneratorService: PageGeneratorService
 	) {}
 
 	async execute(): Promise<string> {
@@ -44,20 +44,22 @@ export class GenerateStatusPageUseCase {
 
 		// Group services by category
 		const categoryStatusData = await Promise.all(
-			categories.map(async (category) => {
+			categories.map(async category => {
 				// Get services for this category
 				const services = await this.serviceRepository.findAll();
-				const categoryServices = services.filter((s) => s.categoryId === category.id);
+				const categoryServices = services.filter(s => s.categoryId === category.id);
 
 				const serviceStatusData = await Promise.all(
-					categoryServices.map(async (service) => {
+					categoryServices.map(async service => {
 						const [latestCheck, recentChecks] = await Promise.all([
 							this.statusCheckRepository.findLatestByServiceId(service.id),
 							this.statusCheckRepository.findByServiceId(service.id, 1440), // 24 hours of minute checks
 						]);
 
 						// Calculate uptime considering all non-down statuses as "up"
-						const upChecks = recentChecks.filter((check) => check.status === 'up' || check.status === 'degraded').length;
+						const upChecks = recentChecks.filter(
+							check => check.status === 'up' || check.status === 'degraded'
+						).length;
 						const uptime = recentChecks.length > 0 ? (upChecks / recentChecks.length) * 100 : 0;
 
 						// Determine current status with better logic
@@ -65,7 +67,9 @@ export class GenerateStatusPageUseCase {
 
 						// If we have recent data but no latest check, use the most recent from history
 						if (!latestCheck && recentChecks.length > 0) {
-							const sortedChecks = recentChecks.sort((a, b) => new Date(b.checkedAt).getTime() - new Date(a.checkedAt).getTime());
+							const sortedChecks = recentChecks.sort(
+								(a, b) => new Date(b.checkedAt).getTime() - new Date(a.checkedAt).getTime()
+							);
 							currentStatus = sortedChecks[0].status;
 						}
 
@@ -78,31 +82,36 @@ export class GenerateStatusPageUseCase {
 							status: currentStatus,
 							responseTime: latestCheck?.responseTimeMs,
 							uptime,
-							history: sampledHistory.map((check) => ({
+							history: sampledHistory.map(check => ({
 								timestamp: check.checkedAt,
 								status: check.status,
 								responseTime: check.responseTimeMs,
 							})),
 						};
-					}),
+					})
 				);
 
 				// Calculate category status and uptime
 				const categoryUptime =
-					serviceStatusData.length > 0 ? serviceStatusData.reduce((sum, s) => sum + s.uptime, 0) / serviceStatusData.length : 100;
+					serviceStatusData.length > 0
+						? serviceStatusData.reduce((sum, s) => sum + s.uptime, 0) / serviceStatusData.length
+						: 100;
 
 				const categoryStatus = this.calculateCategoryStatus(serviceStatusData);
 
 				// Generate category history by properly aggregating service histories
-				const categoryHistory = this.calculateCategoryHistoryFromGrid(serviceStatusData, sharedTimeGrid);
+				const categoryHistory = this.calculateCategoryHistoryFromGrid(
+					serviceStatusData,
+					sharedTimeGrid
+				);
 
 				// Debug logging for data consistency
 				console.log(
-					`Category "${category.name}": status=${categoryStatus}, services=${serviceStatusData.length}, history_points=${categoryHistory.length}`,
+					`Category "${category.name}": status=${categoryStatus}, services=${serviceStatusData.length}, history_points=${categoryHistory.length}`
 				);
-				serviceStatusData.forEach((service) => {
+				serviceStatusData.forEach(service => {
 					console.log(
-						`  Service "${service.name}": status=${service.status}, history=${service.history.length} points, uptime=${service.uptime.toFixed(1)}%`,
+						`  Service "${service.name}": status=${service.status}, history=${service.history.length} points, uptime=${service.uptime.toFixed(1)}%`
 					);
 				});
 
@@ -115,12 +124,12 @@ export class GenerateStatusPageUseCase {
 					services: serviceStatusData,
 					history: categoryHistory,
 				};
-			}),
+			})
 		);
 
 		// Fetch incident updates for each incident
 		const incidentData = await Promise.all(
-			incidents.map(async (incident) => {
+			incidents.map(async incident => {
 				const updates = await this.incidentUpdateRepository.findByIncidentId(incident.id);
 
 				return {
@@ -131,13 +140,13 @@ export class GenerateStatusPageUseCase {
 					severity: incident.severity,
 					startedAt: incident.startedAt,
 					resolvedAt: incident.resolvedAt,
-					updates: updates.map((update) => ({
+					updates: updates.map(update => ({
 						status: update.status,
 						message: update.message,
 						createdAt: update.createdAt,
 					})),
 				} as IncidentData;
-			}),
+			})
 		);
 
 		// Handle automatic banner calculation
@@ -150,7 +159,10 @@ export class GenerateStatusPageUseCase {
 			const calculatedMessage = this.getAutoBannerMessage(calculatedStatus);
 
 			// Update system status in database if it has changed
-			if (calculatedStatus !== systemStatus.overallStatus || calculatedMessage !== systemStatus.bannerMessage) {
+			if (
+				calculatedStatus !== systemStatus.overallStatus ||
+				calculatedMessage !== systemStatus.bannerMessage
+			) {
 				const updatedSystemStatus = await this.systemStatusRepository.update({
 					overallStatus: calculatedStatus,
 					bannerMessage: calculatedMessage,
@@ -187,8 +199,8 @@ export class GenerateStatusPageUseCase {
 			return 'operational';
 		}
 
-		const hasDown = services.some((s) => s.status === 'down');
-		const hasDegraded = services.some((s) => s.status === 'degraded');
+		const hasDown = services.some(s => s.status === 'down');
+		const hasDegraded = services.some(s => s.status === 'degraded');
 
 		if (hasDown) {
 			return 'major_outage';
@@ -206,8 +218,8 @@ export class GenerateStatusPageUseCase {
 
 		// Get all unique timestamps from all services
 		const timestampMap = new Map<string, Date>();
-		services.forEach((service) => {
-			service.history.forEach((point) => {
+		services.forEach(service => {
+			service.history.forEach(point => {
 				const key = point.timestamp.toISOString();
 				if (!timestampMap.has(key)) {
 					timestampMap.set(key, point.timestamp);
@@ -221,19 +233,21 @@ export class GenerateStatusPageUseCase {
 			.map(([, timestamp]) => timestamp);
 
 		// For each timestamp, calculate the category status by aggregating service statuses
-		return timestamps.map((timestamp) => {
+		return timestamps.map(timestamp => {
 			const serviceStatusesAtTime: string[] = [];
 
-			services.forEach((service) => {
+			services.forEach(service => {
 				// Find the status check at this exact timestamp
-				const exactMatch = service.history.find((point) => point.timestamp.getTime() === timestamp.getTime());
+				const exactMatch = service.history.find(
+					point => point.timestamp.getTime() === timestamp.getTime()
+				);
 
 				if (exactMatch) {
 					serviceStatusesAtTime.push(exactMatch.status);
 				} else {
 					// If no exact match, find the closest previous status check
 					const previousChecks = service.history
-						.filter((point) => point.timestamp.getTime() <= timestamp.getTime())
+						.filter(point => point.timestamp.getTime() <= timestamp.getTime())
 						.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
 					if (previousChecks.length > 0) {
@@ -246,8 +260,8 @@ export class GenerateStatusPageUseCase {
 			});
 
 			// Apply category status calculation logic to historical data
-			const hasDown = serviceStatusesAtTime.some((status) => status === 'down');
-			const hasDegraded = serviceStatusesAtTime.some((status) => status === 'degraded');
+			const hasDown = serviceStatusesAtTime.some(status => status === 'down');
+			const hasDegraded = serviceStatusesAtTime.some(status => status === 'degraded');
 
 			let categoryStatus = 'operational';
 			if (hasDown) {
@@ -258,13 +272,16 @@ export class GenerateStatusPageUseCase {
 
 			// Calculate average response time for this timestamp
 			const responseTimes = services
-				.map((service) => {
-					const point = service.history.find((p) => p.timestamp.getTime() === timestamp.getTime());
+				.map(service => {
+					const point = service.history.find(p => p.timestamp.getTime() === timestamp.getTime());
 					return point?.responseTime;
 				})
-				.filter((rt) => rt !== undefined) as number[];
+				.filter(rt => rt !== undefined) as number[];
 
-			const avgResponseTime = responseTimes.length > 0 ? responseTimes.reduce((sum, rt) => sum + rt, 0) / responseTimes.length : undefined;
+			const avgResponseTime =
+				responseTimes.length > 0
+					? responseTimes.reduce((sum, rt) => sum + rt, 0) / responseTimes.length
+					: undefined;
 
 			return {
 				timestamp,
@@ -289,11 +306,15 @@ export class GenerateStatusPageUseCase {
 
 			// Check if there are any critical status changes (down/degraded) in this segment
 			const segment = data.slice(index, nextIndex + 1);
-			const hasCriticalStatus = segment.some((item) => item.status === 'down' || item.status === 'degraded');
+			const hasCriticalStatus = segment.some(
+				item => item.status === 'down' || item.status === 'degraded'
+			);
 
 			if (hasCriticalStatus) {
 				// Find the first critical status in this segment
-				const criticalItem = segment.find((item) => item.status === 'down' || item.status === 'degraded');
+				const criticalItem = segment.find(
+					item => item.status === 'down' || item.status === 'degraded'
+				);
 				sampled.push(criticalItem);
 			} else {
 				// Use the regular sampling point
@@ -325,11 +346,15 @@ export class GenerateStatusPageUseCase {
 	 */
 	private sampleToTimeGrid(checks: any[], timeGrid: Date[]): any[] {
 		// Sort checks by time
-		const sortedChecks = checks.sort((a, b) => new Date(a.checkedAt).getTime() - new Date(b.checkedAt).getTime());
+		const sortedChecks = checks.sort(
+			(a, b) => new Date(a.checkedAt).getTime() - new Date(b.checkedAt).getTime()
+		);
 
-		return timeGrid.map((gridTime) => {
+		return timeGrid.map(gridTime => {
 			// Find the closest check at or before this grid time
-			const eligibleChecks = sortedChecks.filter((check) => new Date(check.checkedAt).getTime() <= gridTime.getTime());
+			const eligibleChecks = sortedChecks.filter(
+				check => new Date(check.checkedAt).getTime() <= gridTime.getTime()
+			);
 
 			if (eligibleChecks.length === 0) {
 				// No data available at this time point
@@ -347,16 +372,20 @@ export class GenerateStatusPageUseCase {
 			// in the time window since the previous grid point
 			const prevGridTime = timeGrid[timeGrid.indexOf(gridTime) - 1];
 			if (prevGridTime) {
-				const windowChecks = sortedChecks.filter((check) => {
+				const windowChecks = sortedChecks.filter(check => {
 					const checkTime = new Date(check.checkedAt).getTime();
 					return checkTime > prevGridTime.getTime() && checkTime <= gridTime.getTime();
 				});
 
-				const hasCriticalStatus = windowChecks.some((check) => check.status === 'down' || check.status === 'degraded');
+				const hasCriticalStatus = windowChecks.some(
+					check => check.status === 'down' || check.status === 'degraded'
+				);
 
 				if (hasCriticalStatus) {
 					// Use the first critical status in this window
-					const criticalCheck = windowChecks.find((check) => check.status === 'down' || check.status === 'degraded');
+					const criticalCheck = windowChecks.find(
+						check => check.status === 'down' || check.status === 'degraded'
+					);
 					if (criticalCheck) {
 						return {
 							checkedAt: gridTime,
@@ -379,18 +408,23 @@ export class GenerateStatusPageUseCase {
 	/**
 	 * Calculate category history using shared time grid for perfect alignment
 	 */
-	private calculateCategoryHistoryFromGrid(services: ServiceStatusData[], timeGrid: Date[]): HistoryPoint[] {
+	private calculateCategoryHistoryFromGrid(
+		services: ServiceStatusData[],
+		timeGrid: Date[]
+	): HistoryPoint[] {
 		if (services.length === 0) {
 			return [];
 		}
 
-		return timeGrid.map((gridTime) => {
+		return timeGrid.map(gridTime => {
 			const serviceStatusesAtTime: string[] = [];
 			const responseTimesAtTime: number[] = [];
 
-			services.forEach((service) => {
+			services.forEach(service => {
 				// Find the status at this grid time from the service's sampled history
-				const historyPoint = service.history.find((point) => point.timestamp.getTime() === gridTime.getTime());
+				const historyPoint = service.history.find(
+					point => point.timestamp.getTime() === gridTime.getTime()
+				);
 
 				if (historyPoint) {
 					serviceStatusesAtTime.push(historyPoint.status);
@@ -404,12 +438,14 @@ export class GenerateStatusPageUseCase {
 			});
 
 			// Apply category status aggregation logic
-			const hasDown = serviceStatusesAtTime.some((status) => status === 'down');
-			const hasDegraded = serviceStatusesAtTime.some((status) => status === 'degraded');
-			const hasUnknown = serviceStatusesAtTime.some((status) => status === 'unknown');
-			const allUnknown = serviceStatusesAtTime.every((status) => status === 'unknown');
-			const allDown = serviceStatusesAtTime.every((status) => status === 'down');
-			const allUp = serviceStatusesAtTime.every((status) => status === 'up' || status === 'operational');
+			const hasDown = serviceStatusesAtTime.some(status => status === 'down');
+			const hasDegraded = serviceStatusesAtTime.some(status => status === 'degraded');
+			const hasUnknown = serviceStatusesAtTime.some(status => status === 'unknown');
+			const allUnknown = serviceStatusesAtTime.every(status => status === 'unknown');
+			const allDown = serviceStatusesAtTime.every(status => status === 'down');
+			const allUp = serviceStatusesAtTime.every(
+				status => status === 'up' || status === 'operational'
+			);
 
 			let categoryStatus = 'operational';
 
@@ -431,14 +467,16 @@ export class GenerateStatusPageUseCase {
 			}
 			// Mixed case with unknown data
 			else if (hasUnknown) {
-				const knownStatuses = serviceStatusesAtTime.filter((status) => status !== 'unknown');
+				const knownStatuses = serviceStatusesAtTime.filter(status => status !== 'unknown');
 				if (knownStatuses.length === 0) {
 					categoryStatus = 'unknown';
 				} else {
-					const allKnownDown = knownStatuses.every((status) => status === 'down');
-					const allKnownUp = knownStatuses.every((status) => status === 'up' || status === 'operational');
-					const knownHasDown = knownStatuses.some((status) => status === 'down');
-					const knownHasDegraded = knownStatuses.some((status) => status === 'degraded');
+					const allKnownDown = knownStatuses.every(status => status === 'down');
+					const allKnownUp = knownStatuses.every(
+						status => status === 'up' || status === 'operational'
+					);
+					const knownHasDown = knownStatuses.some(status => status === 'down');
+					const knownHasDegraded = knownStatuses.some(status => status === 'degraded');
 
 					if (allKnownDown) {
 						categoryStatus = 'major_outage';
@@ -456,7 +494,9 @@ export class GenerateStatusPageUseCase {
 
 			// Calculate average response time
 			const avgResponseTime =
-				responseTimesAtTime.length > 0 ? responseTimesAtTime.reduce((sum, rt) => sum + rt, 0) / responseTimesAtTime.length : undefined;
+				responseTimesAtTime.length > 0
+					? responseTimesAtTime.reduce((sum, rt) => sum + rt, 0) / responseTimesAtTime.length
+					: undefined;
 
 			return {
 				timestamp: gridTime,
@@ -466,15 +506,17 @@ export class GenerateStatusPageUseCase {
 		});
 	}
 
-	private calculateOverallSystemStatus(categories: CategoryStatusData[]): 'operational' | 'degraded' | 'major_outage' {
+	private calculateOverallSystemStatus(
+		categories: CategoryStatusData[]
+	): 'operational' | 'degraded' | 'major_outage' {
 		if (categories.length === 0) {
 			return 'operational';
 		}
 
 		// Collect all service statuses from all categories
 		const allServiceStatuses: string[] = [];
-		categories.forEach((category) => {
-			category.services.forEach((service) => {
+		categories.forEach(category => {
+			category.services.forEach(service => {
 				// Handle unknown status as degraded for safety
 				const status = service.status === 'unknown' ? 'degraded' : service.status;
 				allServiceStatuses.push(status);
@@ -485,9 +527,9 @@ export class GenerateStatusPageUseCase {
 			return 'operational';
 		}
 
-		const hasDown = allServiceStatuses.some((status) => status === 'down');
-		const hasDegraded = allServiceStatuses.some((status) => status === 'degraded');
-		const allDown = allServiceStatuses.every((status) => status === 'down');
+		const hasDown = allServiceStatuses.some(status => status === 'down');
+		const hasDegraded = allServiceStatuses.some(status => status === 'degraded');
+		const allDown = allServiceStatuses.every(status => status === 'down');
 
 		// Red: ALL services are down (major system-wide outage)
 		if (allDown) {

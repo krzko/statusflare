@@ -62,14 +62,14 @@ describe('SLOMonitoringUseCase', () => {
 		// Reset all mocks completely
 		vi.clearAllMocks();
 		vi.resetAllMocks();
-		
+
 		useCase = new SLOMonitoringUseCase(
 			mockSLORepository as any,
 			mockServiceRepository as any,
 			mockStatusCheckRepository as any,
 			mockSLOCalculationService as any,
 			mockNotificationService as any,
-			baseUrl,
+			baseUrl
 		);
 	});
 
@@ -146,15 +146,19 @@ describe('SLOMonitoringUseCase', () => {
 			mockSLORepository.getEnabledSLOs.mockResolvedValueOnce([mockSLO]);
 			mockServiceRepository.findById.mockResolvedValueOnce(mockService);
 			mockStatusCheckRepository.findByServiceIdInTimeRange.mockResolvedValueOnce(mockStatusChecks);
-			
+
 			// Mock notification setup
 			mockSLORepository.getUnresolvedBurnEventBySLOId.mockResolvedValueOnce(null);
 			mockSLORepository.createBurnEvent.mockResolvedValueOnce(1);
 			mockSLORepository.getEnabledSLONotificationsBySLOId.mockResolvedValueOnce([
-				{ id: 1, sloId: 1, notificationChannelId: 1, burnRateThreshold: 14.4, enabled: true }
+				{ id: 1, sloId: 1, notificationChannelId: 1, burnRateThreshold: 14.4, enabled: true },
 			]);
 			mockSLORepository.getNotificationChannelById.mockResolvedValueOnce({
-				id: 1, name: 'webhook', type: 'webhook', config: '{"url":"http://webhook.example.com"}', enabled: true
+				id: 1,
+				name: 'webhook',
+				type: 'webhook',
+				config: '{"url":"http://webhook.example.com"}',
+				enabled: true,
 			});
 			mockNotificationService.sendAlert.mockResolvedValueOnce(true);
 
@@ -199,7 +203,7 @@ describe('SLOMonitoringUseCase', () => {
 					name: 'webhook',
 					type: 'webhook',
 					enabled: true,
-				}),
+				})
 			);
 		});
 
@@ -207,7 +211,7 @@ describe('SLOMonitoringUseCase', () => {
 			mockSLORepository.getEnabledSLOs.mockResolvedValueOnce([mockSLO]);
 			mockServiceRepository.findById.mockResolvedValueOnce(mockService);
 			mockStatusCheckRepository.findByServiceIdInTimeRange.mockResolvedValueOnce(mockStatusChecks);
-			
+
 			// Mock notification setup - this should NOT trigger fast burn alert since burnRate is 5.0 < 14.4
 			mockSLORepository.getUnresolvedBurnEventBySLOId.mockResolvedValueOnce(null);
 			mockSLORepository.getEnabledSLONotificationsBySLOId.mockResolvedValueOnce([]);
@@ -244,7 +248,7 @@ describe('SLOMonitoringUseCase', () => {
 			mockSLORepository.getEnabledSLOs.mockResolvedValueOnce([mockSLO]);
 			mockServiceRepository.findById.mockResolvedValueOnce(mockService);
 			mockStatusCheckRepository.findByServiceIdInTimeRange.mockResolvedValueOnce([]);
-			
+
 			// Mock notification setup for fast burn scenario
 			mockSLORepository.getUnresolvedBurnEventBySLOId.mockResolvedValueOnce(null);
 			mockSLORepository.createBurnEvent.mockResolvedValueOnce(2);
@@ -424,15 +428,19 @@ describe('SLOMonitoringUseCase', () => {
 			mockSLORepository.getEnabledSLOs.mockResolvedValueOnce([mockSLO]);
 			mockServiceRepository.findById.mockResolvedValueOnce(mockService);
 			mockStatusCheckRepository.findByServiceIdInTimeRange.mockResolvedValueOnce(mockStatusChecks);
-			
+
 			// Mock notification setup
 			mockSLORepository.getUnresolvedBurnEventBySLOId.mockResolvedValueOnce(null);
 			mockSLORepository.createBurnEvent.mockResolvedValueOnce(3);
 			mockSLORepository.getEnabledSLONotificationsBySLOId.mockResolvedValueOnce([
-				{ id: 1, sloId: 1, notificationChannelId: 1, burnRateThreshold: 14.4, enabled: true }
+				{ id: 1, sloId: 1, notificationChannelId: 1, burnRateThreshold: 14.4, enabled: true },
 			]);
 			mockSLORepository.getNotificationChannelById.mockResolvedValueOnce({
-				id: 1, name: 'webhook', type: 'webhook', config: '{"url":"http://webhook.example.com"}', enabled: true
+				id: 1,
+				name: 'webhook',
+				type: 'webhook',
+				config: '{"url":"http://webhook.example.com"}',
+				enabled: true,
 			});
 			mockNotificationService.sendAlert.mockResolvedValueOnce(true);
 
@@ -451,7 +459,7 @@ describe('SLOMonitoringUseCase', () => {
 
 			// Verify that the notification was called
 			expect(mockNotificationService.sendAlert).toHaveBeenCalled();
-			
+
 			const alertCall = mockNotificationService.sendAlert.mock.calls[0];
 			const payload = alertCall[0];
 
@@ -517,14 +525,14 @@ describe('SLOMonitoringUseCase', () => {
 			mockSLORepository.getEnabledSLOs.mockResolvedValueOnce(multipleSLOs);
 
 			// Mock services and status checks for each SLO
-			mockServiceRepository.findById.mockImplementation((id) =>
+			mockServiceRepository.findById.mockImplementation(id =>
 				Promise.resolve(
 					createMockService({
 						...mockService,
 						id: Number(id),
 						name: `Service ${id}`,
-					}),
-				),
+					})
+				)
 			);
 
 			mockStatusCheckRepository.findByServiceIdInTimeRange.mockResolvedValue(mockStatusChecks);

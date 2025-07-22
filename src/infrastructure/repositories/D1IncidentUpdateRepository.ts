@@ -10,12 +10,17 @@ export class D1IncidentUpdateRepository implements IncidentUpdateRepository {
 	constructor(private db: D1Database) {}
 
 	async findAll(): Promise<IncidentUpdate[]> {
-		const result = await this.db.prepare('SELECT * FROM incident_updates ORDER BY created_at DESC').all<IncidentUpdate>();
+		const result = await this.db
+			.prepare('SELECT * FROM incident_updates ORDER BY created_at DESC')
+			.all<IncidentUpdate>();
 		return result.results.map(this.mapToIncidentUpdate);
 	}
 
 	async findById(id: number): Promise<IncidentUpdate | null> {
-		const result = await this.db.prepare('SELECT * FROM incident_updates WHERE id = ?').bind(id).first<IncidentUpdate>();
+		const result = await this.db
+			.prepare('SELECT * FROM incident_updates WHERE id = ?')
+			.bind(id)
+			.first<IncidentUpdate>();
 		return result ? this.mapToIncidentUpdate(result) : null;
 	}
 
@@ -26,7 +31,7 @@ export class D1IncidentUpdateRepository implements IncidentUpdateRepository {
 			SELECT * FROM incident_updates 
 			WHERE incident_id = ? 
 			ORDER BY created_at ASC
-		`,
+		`
 			)
 			.bind(incidentId)
 			.all<IncidentUpdate>();
@@ -40,7 +45,7 @@ export class D1IncidentUpdateRepository implements IncidentUpdateRepository {
 				INSERT INTO incident_updates (incident_id, status, message)
 				VALUES (?, ?, ?)
 				RETURNING *
-			`,
+			`
 			)
 			.bind(update.incidentId, update.status, update.message)
 			.first<IncidentUpdate>();
@@ -81,7 +86,10 @@ export class D1IncidentUpdateRepository implements IncidentUpdateRepository {
 	}
 
 	async delete(id: number): Promise<boolean> {
-		const result = await this.db.prepare('DELETE FROM incident_updates WHERE id = ?').bind(id).run();
+		const result = await this.db
+			.prepare('DELETE FROM incident_updates WHERE id = ?')
+			.bind(id)
+			.run();
 		// Using meta.changes to check affected rows, consistent with D1IncidentRepository
 		return result.meta?.changes > 0 || false;
 	}

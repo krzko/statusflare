@@ -134,6 +134,7 @@ Customise your status page through the admin interface:
 The service provides a comprehensive RESTful API for programmatic access to all features including services, SLOs, notifications, incidents, and monitoring configurations.
 
 **Key API Features:**
+
 - Complete CRUD operations for all resources
 - SLO monitoring and metrics endpoints
 - Webhook notification management

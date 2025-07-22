@@ -134,7 +134,11 @@ describe('DefaultSLOCalculationService', () => {
 				isFastBurn: true,
 			};
 
-			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(mockAvailabilitySLO, mockResult, mockStatusChecks);
+			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(
+				mockAvailabilitySLO,
+				mockResult,
+				mockStatusChecks
+			);
 
 			expect(timeToExhaustion).toBeGreaterThan(0);
 			expect(timeToExhaustion).toBeLessThan(1000); // Should be a reasonable time
@@ -149,7 +153,11 @@ describe('DefaultSLOCalculationService', () => {
 				isFastBurn: false,
 			};
 
-			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(mockAvailabilitySLO, mockResult, mockStatusChecks);
+			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(
+				mockAvailabilitySLO,
+				mockResult,
+				mockStatusChecks
+			);
 
 			expect(timeToExhaustion).toBeUndefined();
 		});
@@ -163,7 +171,11 @@ describe('DefaultSLOCalculationService', () => {
 				isFastBurn: true,
 			};
 
-			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(mockAvailabilitySLO, mockResult, mockStatusChecks);
+			const timeToExhaustion = sloCalculationService.calculateTimeToExhaustion(
+				mockAvailabilitySLO,
+				mockResult,
+				mockStatusChecks
+			);
 
 			expect(timeToExhaustion).toBe(0);
 		});
@@ -219,7 +231,7 @@ describe('DefaultSLOCalculationService', () => {
 		});
 
 		it('should handle checks with missing response times for latency SLO', () => {
-			const checksWithoutResponseTime = mockStatusChecks.map((check) => ({
+			const checksWithoutResponseTime = mockStatusChecks.map(check => ({
 				...check,
 				responseTimeMs: check.status === ServiceStatus.DOWN ? 0 : check.responseTimeMs,
 			}));

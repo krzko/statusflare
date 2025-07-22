@@ -36,8 +36,12 @@ describe('MonitorServicesUseCase', () => {
 		// Reset all mocks completely
 		vi.clearAllMocks();
 		vi.resetAllMocks();
-		
-		useCase = new MonitorServicesUseCase(mockServiceRepository as any, mockStatusCheckRepository as any, mockHealthCheckService as any);
+
+		useCase = new MonitorServicesUseCase(
+			mockServiceRepository as any,
+			mockStatusCheckRepository as any,
+			mockHealthCheckService as any
+		);
 	});
 
 	const mockActiveServices = [
@@ -91,7 +95,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 200,
 						checkedAt: new Date(),
 						errorMessage: null,
-					}),
+					})
 				)
 				.mockResolvedValueOnce(
 					createMockStatusCheck({
@@ -102,7 +106,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 500,
 						checkedAt: new Date(),
 						errorMessage: 'Internal Server Error',
-					}),
+					})
 				);
 
 			// Execute
@@ -134,12 +138,14 @@ describe('MonitorServicesUseCase', () => {
 			mockServiceRepository.findEnabled.mockResolvedValueOnce(mockActiveServices);
 
 			// First service check fails
-			mockHealthCheckService.performCheck.mockRejectedValueOnce(new Error('Network timeout')).mockResolvedValueOnce({
-				status: ServiceStatus.UP,
-				responseTimeMs: 200,
-				statusCode: 200,
-				errorMessage: null,
-			});
+			mockHealthCheckService.performCheck
+				.mockRejectedValueOnce(new Error('Network timeout'))
+				.mockResolvedValueOnce({
+					status: ServiceStatus.UP,
+					responseTimeMs: 200,
+					statusCode: 200,
+					errorMessage: null,
+				});
 
 			// Should still save a status check for the failed service
 			mockStatusCheckRepository.create
@@ -152,7 +158,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 0,
 						checkedAt: new Date(),
 						errorMessage: 'Network timeout',
-					}),
+					})
 				)
 				.mockResolvedValueOnce(
 					createMockStatusCheck({
@@ -163,7 +169,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 200,
 						checkedAt: new Date(),
 						errorMessage: null,
-					}),
+					})
 				);
 
 			await useCase.execute();
@@ -213,7 +219,7 @@ describe('MonitorServicesUseCase', () => {
 					statusCode: 200,
 					checkedAt: new Date(),
 					errorMessage: null,
-				}),
+				})
 			);
 
 			const result = await useCase.checkSingleService(service);
@@ -242,7 +248,7 @@ describe('MonitorServicesUseCase', () => {
 					statusCode: 0,
 					checkedAt: new Date(),
 					errorMessage: 'Connection refused',
-				}),
+				})
 			);
 
 			const result = await useCase.checkSingleService(service);
@@ -303,7 +309,7 @@ describe('MonitorServicesUseCase', () => {
 			});
 
 			let savedStatusCheck: any;
-			mockStatusCheckRepository.create.mockImplementationOnce((statusCheck) => {
+			mockStatusCheckRepository.create.mockImplementationOnce(statusCheck => {
 				savedStatusCheck = statusCheck;
 				return Promise.resolve(statusCheck);
 			});
@@ -327,7 +333,7 @@ describe('MonitorServicesUseCase', () => {
 			});
 
 			let savedStatusCheck: any;
-			mockStatusCheckRepository.create.mockImplementationOnce((statusCheck) => {
+			mockStatusCheckRepository.create.mockImplementationOnce(statusCheck => {
 				savedStatusCheck = statusCheck;
 				return Promise.resolve(statusCheck);
 			});
@@ -340,7 +346,9 @@ describe('MonitorServicesUseCase', () => {
 
 	describe('error handling and resilience', () => {
 		it('should handle repository findActiveServices failure', async () => {
-			mockServiceRepository.findEnabled.mockRejectedValueOnce(new Error('Database connection lost'));
+			mockServiceRepository.findEnabled.mockRejectedValueOnce(
+				new Error('Database connection lost')
+			);
 
 			await expect(useCase.execute()).rejects.toThrow('Database connection lost');
 		});
@@ -369,7 +377,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 200,
 						checkedAt: new Date(),
 						errorMessage: null,
-					}),
+					})
 				)
 				.mockResolvedValueOnce(
 					createMockStatusCheck({
@@ -380,7 +388,7 @@ describe('MonitorServicesUseCase', () => {
 						statusCode: 0,
 						checkedAt: new Date(),
 						errorMessage: 'Timeout',
-					}),
+					})
 				);
 
 			await useCase.execute();
@@ -393,21 +401,19 @@ describe('MonitorServicesUseCase', () => {
 	describe('performance considerations', () => {
 		it('should handle large numbers of services efficiently', async () => {
 			// Create 100 mock services
-			const manyServices = Array.from(
-				{ length: 100 },
-				(_, i) =>
-					createMockService({
-						id: (i + 1).toString(),
-						name: `Service ${i + 1}`,
-						url: `https://api${i + 1}.example.com`,
-						method: 'GET',
-						expectedStatus: 200,
-						timeoutMs: 30000,
-						intervalMs: 300000,
-						enabled: true,
-						createdAt: new Date(),
-						updatedAt: new Date(),
-					}),
+			const manyServices = Array.from({ length: 100 }, (_, i) =>
+				createMockService({
+					id: (i + 1).toString(),
+					name: `Service ${i + 1}`,
+					url: `https://api${i + 1}.example.com`,
+					method: 'GET',
+					expectedStatus: 200,
+					timeoutMs: 30000,
+					intervalMs: 300000,
+					enabled: true,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				})
 			);
 
 			mockServiceRepository.findEnabled.mockResolvedValueOnce(manyServices);
@@ -421,7 +427,7 @@ describe('MonitorServicesUseCase', () => {
 			});
 
 			// Mock all saves to succeed
-			mockStatusCheckRepository.create.mockImplementation((check) => Promise.resolve(check));
+			mockStatusCheckRepository.create.mockImplementation(check => Promise.resolve(check));
 
 			const startTime = Date.now();
 			await useCase.execute();

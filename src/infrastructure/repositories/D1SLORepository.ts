@@ -11,7 +11,7 @@ export class D1SLORepository implements SLORepository {
 				`
         INSERT INTO slos (service_id, name, sli_type, target_percentage, latency_threshold_ms, time_window_days, enabled)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
+      `
 			)
 			.bind(
 				slo.serviceId,
@@ -20,7 +20,7 @@ export class D1SLORepository implements SLORepository {
 				slo.targetPercentage,
 				slo.latencyThresholdMs || null,
 				slo.timeWindowDays,
-				slo.enabled ? 1 : 0,
+				slo.enabled ? 1 : 0
 			)
 			.run();
 
@@ -90,18 +90,21 @@ export class D1SLORepository implements SLORepository {
 	}
 
 	async getSLOsByServiceId(serviceId: number): Promise<SLO[]> {
-		const results = await this.db.prepare('SELECT * FROM slos WHERE service_id = ? ORDER BY created_at DESC').bind(serviceId).all();
-		return results.results.map((row) => this.mapRowToSLO(row));
+		const results = await this.db
+			.prepare('SELECT * FROM slos WHERE service_id = ? ORDER BY created_at DESC')
+			.bind(serviceId)
+			.all();
+		return results.results.map(row => this.mapRowToSLO(row));
 	}
 
 	async getAllSLOs(): Promise<SLO[]> {
 		const results = await this.db.prepare('SELECT * FROM slos ORDER BY created_at DESC').all();
-		return results.results.map((row) => this.mapRowToSLO(row));
+		return results.results.map(row => this.mapRowToSLO(row));
 	}
 
 	async getEnabledSLOs(): Promise<SLO[]> {
 		const results = await this.db.prepare('SELECT * FROM slos WHERE enabled = 1').all();
-		return results.results.map((row) => this.mapRowToSLO(row));
+		return results.results.map(row => this.mapRowToSLO(row));
 	}
 
 	// SLO Burn Event Management
@@ -111,9 +114,14 @@ export class D1SLORepository implements SLORepository {
 				`
         INSERT INTO slo_burn_events (slo_id, burn_rate, error_budget_consumed_percentage, time_to_exhaustion_hours)
         VALUES (?, ?, ?, ?)
-      `,
+      `
 			)
-			.bind(burnEvent.sloId, burnEvent.burnRate, burnEvent.errorBudgetConsumedPercentage, burnEvent.timeToExhaustionHours || null)
+			.bind(
+				burnEvent.sloId,
+				burnEvent.burnRate,
+				burnEvent.errorBudgetConsumedPercentage,
+				burnEvent.timeToExhaustionHours || null
+			)
 			.run();
 
 		if (!result.success || !result.meta?.last_row_id) {
@@ -161,37 +169,46 @@ export class D1SLORepository implements SLORepository {
 	}
 
 	async getBurnEventById(id: number): Promise<SLOBurnEvent | null> {
-		const result = await this.db.prepare('SELECT * FROM slo_burn_events WHERE id = ?').bind(id).first();
+		const result = await this.db
+			.prepare('SELECT * FROM slo_burn_events WHERE id = ?')
+			.bind(id)
+			.first();
 		return result ? this.mapRowToBurnEvent(result) : null;
 	}
 
 	async getBurnEventsBySLOId(sloId: number, limit?: number): Promise<SLOBurnEvent[]> {
 		const query = `SELECT * FROM slo_burn_events WHERE slo_id = ? ORDER BY triggered_at DESC${limit ? ` LIMIT ${limit}` : ''}`;
 		const results = await this.db.prepare(query).bind(sloId).all();
-		return results.results.map((row) => this.mapRowToBurnEvent(row));
+		return results.results.map(row => this.mapRowToBurnEvent(row));
 	}
 
 	async getUnresolvedBurnEvents(): Promise<SLOBurnEvent[]> {
-		const results = await this.db.prepare('SELECT * FROM slo_burn_events WHERE resolved_at IS NULL ORDER BY triggered_at DESC').all();
-		return results.results.map((row) => this.mapRowToBurnEvent(row));
+		const results = await this.db
+			.prepare('SELECT * FROM slo_burn_events WHERE resolved_at IS NULL ORDER BY triggered_at DESC')
+			.all();
+		return results.results.map(row => this.mapRowToBurnEvent(row));
 	}
 
 	async getUnresolvedBurnEventBySLOId(sloId: number): Promise<SLOBurnEvent | null> {
 		const result = await this.db
-			.prepare('SELECT * FROM slo_burn_events WHERE slo_id = ? AND resolved_at IS NULL ORDER BY triggered_at DESC LIMIT 1')
+			.prepare(
+				'SELECT * FROM slo_burn_events WHERE slo_id = ? AND resolved_at IS NULL ORDER BY triggered_at DESC LIMIT 1'
+			)
 			.bind(sloId)
 			.first();
 		return result ? this.mapRowToBurnEvent(result) : null;
 	}
 
 	// Notification Channel Management
-	async createNotificationChannel(channel: Omit<NotificationChannel, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
+	async createNotificationChannel(
+		channel: Omit<NotificationChannel, 'id' | 'createdAt' | 'updatedAt'>
+	): Promise<number> {
 		const result = await this.db
 			.prepare(
 				`
         INSERT INTO notification_channels (name, type, config, enabled)
         VALUES (?, ?, ?, ?)
-      `,
+      `
 			)
 			.bind(channel.name, channel.type, channel.config, channel.enabled ? 1 : 0)
 			.run();
@@ -203,7 +220,10 @@ export class D1SLORepository implements SLORepository {
 		return result.meta.last_row_id as number;
 	}
 
-	async updateNotificationChannel(id: number, channel: Partial<NotificationChannel>): Promise<void> {
+	async updateNotificationChannel(
+		id: number,
+		channel: Partial<NotificationChannel>
+	): Promise<void> {
 		const fields: string[] = [];
 		const values: any[] = [];
 
@@ -242,41 +262,53 @@ export class D1SLORepository implements SLORepository {
 	}
 
 	async deleteNotificationChannel(id: number): Promise<void> {
-		const result = await this.db.prepare('DELETE FROM notification_channels WHERE id = ?').bind(id).run();
+		const result = await this.db
+			.prepare('DELETE FROM notification_channels WHERE id = ?')
+			.bind(id)
+			.run();
 		if (!result.success) {
 			throw new Error('Failed to delete notification channel');
 		}
 	}
 
 	async getNotificationChannelById(id: number): Promise<NotificationChannel | null> {
-		const result = await this.db.prepare('SELECT * FROM notification_channels WHERE id = ?').bind(id).first();
+		const result = await this.db
+			.prepare('SELECT * FROM notification_channels WHERE id = ?')
+			.bind(id)
+			.first();
 		return result ? this.mapRowToNotificationChannel(result) : null;
 	}
 
 	async getAllNotificationChannels(): Promise<NotificationChannel[]> {
-		const results = await this.db.prepare('SELECT * FROM notification_channels ORDER BY created_at DESC').all();
-		return results.results.map((row) => this.mapRowToNotificationChannel(row));
+		const results = await this.db
+			.prepare('SELECT * FROM notification_channels ORDER BY created_at DESC')
+			.all();
+		return results.results.map(row => this.mapRowToNotificationChannel(row));
 	}
 
 	async getEnabledNotificationChannels(): Promise<NotificationChannel[]> {
-		const results = await this.db.prepare('SELECT * FROM notification_channels WHERE enabled = 1').all();
-		return results.results.map((row) => this.mapRowToNotificationChannel(row));
+		const results = await this.db
+			.prepare('SELECT * FROM notification_channels WHERE enabled = 1')
+			.all();
+		return results.results.map(row => this.mapRowToNotificationChannel(row));
 	}
 
 	// SLO Notification Rules Management
-	async createSLONotification(sloNotification: Omit<SLONotification, 'id' | 'createdAt'>): Promise<number> {
+	async createSLONotification(
+		sloNotification: Omit<SLONotification, 'id' | 'createdAt'>
+	): Promise<number> {
 		const result = await this.db
 			.prepare(
 				`
         INSERT INTO slo_notifications (slo_id, notification_channel_id, burn_rate_threshold, enabled)
         VALUES (?, ?, ?, ?)
-      `,
+      `
 			)
 			.bind(
 				sloNotification.sloId,
 				sloNotification.notificationChannelId,
 				sloNotification.burnRateThreshold,
-				sloNotification.enabled ? 1 : 0,
+				sloNotification.enabled ? 1 : 0
 			)
 			.run();
 
@@ -287,7 +319,10 @@ export class D1SLORepository implements SLORepository {
 		return result.meta.last_row_id as number;
 	}
 
-	async updateSLONotification(id: number, sloNotification: Partial<SLONotification>): Promise<void> {
+	async updateSLONotification(
+		id: number,
+		sloNotification: Partial<SLONotification>
+	): Promise<void> {
 		const fields: string[] = [];
 		const values: any[] = [];
 
@@ -317,30 +352,42 @@ export class D1SLORepository implements SLORepository {
 	}
 
 	async deleteSLONotification(id: number): Promise<void> {
-		const result = await this.db.prepare('DELETE FROM slo_notifications WHERE id = ?').bind(id).run();
+		const result = await this.db
+			.prepare('DELETE FROM slo_notifications WHERE id = ?')
+			.bind(id)
+			.run();
 		if (!result.success) {
 			throw new Error('Failed to delete SLO notification');
 		}
 	}
 
 	async getSLONotificationById(id: number): Promise<SLONotification | null> {
-		const result = await this.db.prepare('SELECT * FROM slo_notifications WHERE id = ?').bind(id).first();
+		const result = await this.db
+			.prepare('SELECT * FROM slo_notifications WHERE id = ?')
+			.bind(id)
+			.first();
 		return result ? this.mapRowToSLONotification(result) : null;
 	}
 
 	async getSLONotificationsBySLOId(sloId: number): Promise<SLONotification[]> {
-		const results = await this.db.prepare('SELECT * FROM slo_notifications WHERE slo_id = ?').bind(sloId).all();
-		return results.results.map((row) => this.mapRowToSLONotification(row));
+		const results = await this.db
+			.prepare('SELECT * FROM slo_notifications WHERE slo_id = ?')
+			.bind(sloId)
+			.all();
+		return results.results.map(row => this.mapRowToSLONotification(row));
 	}
 
 	async getAllSLONotifications(): Promise<SLONotification[]> {
 		const results = await this.db.prepare('SELECT * FROM slo_notifications').all();
-		return results.results.map((row) => this.mapRowToSLONotification(row));
+		return results.results.map(row => this.mapRowToSLONotification(row));
 	}
 
 	async getEnabledSLONotificationsBySLOId(sloId: number): Promise<SLONotification[]> {
-		const results = await this.db.prepare('SELECT * FROM slo_notifications WHERE slo_id = ? AND enabled = 1').bind(sloId).all();
-		return results.results.map((row) => this.mapRowToSLONotification(row));
+		const results = await this.db
+			.prepare('SELECT * FROM slo_notifications WHERE slo_id = ? AND enabled = 1')
+			.bind(sloId)
+			.all();
+		return results.results.map(row => this.mapRowToSLONotification(row));
 	}
 
 	// Helper mapping methods

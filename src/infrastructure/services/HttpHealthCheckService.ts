@@ -144,7 +144,10 @@ export class HttpHealthCheckService implements HealthCheckService {
 		}
 	}
 
-	private async performDatabaseCheck(service: Service, startTime: number): Promise<HealthCheckResult> {
+	private async performDatabaseCheck(
+		service: Service,
+		startTime: number
+	): Promise<HealthCheckResult> {
 		try {
 			console.log(`Database check for "${service.name}": Starting validation`);
 
@@ -160,7 +163,9 @@ export class HttpHealthCheckService implements HealthCheckService {
 			// Get Hyperdrive binding from environment
 			const hyperdrive = this.getHyperdriveBinding(service.hyperdriveId);
 			if (!hyperdrive) {
-				console.log(`Database check for "${service.name}": Hyperdrive binding not found for ID: ${service.hyperdriveId}`);
+				console.log(
+					`Database check for "${service.name}": Hyperdrive binding not found for ID: ${service.hyperdriveId}`
+				);
 				return {
 					status: 'down',
 					responseTimeMs: Date.now() - startTime,
@@ -175,7 +180,10 @@ export class HttpHealthCheckService implements HealthCheckService {
 				postgres = (await import('postgres')).default;
 				console.log(`Database check for "${service.name}": Successfully imported postgres library`);
 			} catch (importError) {
-				console.error(`Database check for "${service.name}": Failed to import postgres library:`, importError);
+				console.error(
+					`Database check for "${service.name}": Failed to import postgres library:`,
+					importError
+				);
 				return {
 					status: 'down',
 					responseTimeMs: Date.now() - startTime,
@@ -194,8 +202,12 @@ export class HttpHealthCheckService implements HealthCheckService {
 				debug: false, // Disable debug mode
 			};
 
-			console.log(`Database check for "${service.name}": Creating connection with timeout ${connectionConfig.connect_timeout}s`);
-			console.log(`Database check for "${service.name}": Using Hyperdrive binding: ${service.hyperdriveId}`);
+			console.log(
+				`Database check for "${service.name}": Creating connection with timeout ${connectionConfig.connect_timeout}s`
+			);
+			console.log(
+				`Database check for "${service.name}": Using Hyperdrive binding: ${service.hyperdriveId}`
+			);
 
 			const sql = postgres(hyperdrive.connectionString, connectionConfig);
 
@@ -206,12 +218,14 @@ export class HttpHealthCheckService implements HealthCheckService {
 				// Execute the health check query with timeout to prevent hanging connections
 				const result = await Promise.race([
 					sql`${sql.unsafe(query)}`,
-					new Promise((_, reject) => setTimeout(() => reject(new Error('Query timeout')), service.timeoutMs)),
+					new Promise((_, reject) =>
+						setTimeout(() => reject(new Error('Query timeout')), service.timeoutMs)
+					),
 				]);
 
 				const responseTime = Date.now() - startTime;
 				console.log(
-					`Database check for "${service.name}": Query successful, response time: ${responseTime}ms, result rows: ${Array.isArray(result) ? result.length : 'unknown'}`,
+					`Database check for "${service.name}": Query successful, response time: ${responseTime}ms, result rows: ${Array.isArray(result) ? result.length : 'unknown'}`
 				);
 
 				// Determine status based on response time
@@ -219,7 +233,7 @@ export class HttpHealthCheckService implements HealthCheckService {
 				if (responseTime > service.timeoutMs * 0.8) {
 					status = 'degraded';
 					console.log(
-						`Database check for "${service.name}": Status degraded due to slow response (${responseTime}ms > ${service.timeoutMs * 0.8}ms threshold)`,
+						`Database check for "${service.name}": Status degraded due to slow response (${responseTime}ms > ${service.timeoutMs * 0.8}ms threshold)`
 					);
 				}
 
@@ -238,7 +252,10 @@ export class HttpHealthCheckService implements HealthCheckService {
 				try {
 					await sql.end({ timeout: 1 }); // Force close on error
 				} catch (closeError) {
-					console.error(`Database check for "${service.name}": Failed to close connection:`, closeError);
+					console.error(
+						`Database check for "${service.name}": Failed to close connection:`,
+						closeError
+					);
 				}
 
 				const responseTime = Date.now() - startTime;
@@ -246,7 +263,9 @@ export class HttpHealthCheckService implements HealthCheckService {
 
 				if (queryError instanceof Error) {
 					errorMessage = `Database error: ${queryError.message}`;
-					console.error(`Database check for "${service.name}": Detailed error - ${queryError.name}: ${queryError.message}`);
+					console.error(
+						`Database check for "${service.name}": Detailed error - ${queryError.name}: ${queryError.message}`
+					);
 					if (queryError.stack) {
 						console.error(`Database check for "${service.name}": Stack trace:`, queryError.stack);
 					}
@@ -266,7 +285,9 @@ export class HttpHealthCheckService implements HealthCheckService {
 
 			if (error instanceof Error) {
 				errorMessage = `Database error: ${error.message}`;
-				console.error(`Database check for "${service.name}": Detailed connection error - ${error.name}: ${error.message}`);
+				console.error(
+					`Database check for "${service.name}": Detailed connection error - ${error.name}: ${error.message}`
+				);
 				if (error.stack) {
 					console.error(`Database check for "${service.name}": Stack trace:`, error.stack);
 				}
@@ -286,9 +307,13 @@ export class HttpHealthCheckService implements HealthCheckService {
 		}
 
 		// Get all possible Hyperdrive bindings from environment
-		const allBindings = Object.keys(this.env).filter((key) => key.startsWith('HYPERDRIVE') && (this.env as any)[key]);
+		const allBindings = Object.keys(this.env).filter(
+			key => key.startsWith('HYPERDRIVE') && (this.env as any)[key]
+		);
 
-		console.log(`Database check: Found ${allBindings.length} Hyperdrive bindings: ${allBindings.join(', ')}`);
+		console.log(
+			`Database check: Found ${allBindings.length} Hyperdrive bindings: ${allBindings.join(', ')}`
+		);
 
 		// Try to find the binding that matches our Hyperdrive ID
 		for (const bindingName of allBindings) {
@@ -296,12 +321,16 @@ export class HttpHealthCheckService implements HealthCheckService {
 			if (binding) {
 				// Check if this binding's ID matches the requested hyperdriveId
 				// Note: We'll need to check the binding's configuration or use a mapping
-				console.log(`Database check: Testing Hyperdrive binding: ${bindingName} for ID: ${hyperdriveId}`);
+				console.log(
+					`Database check: Testing Hyperdrive binding: ${bindingName} for ID: ${hyperdriveId}`
+				);
 
 				// For now, we'll use a simple mapping approach
 				// In the future, we could store the mapping in the environment or configuration
 				if (this.isMatchingHyperdrive(bindingName, hyperdriveId)) {
-					console.log(`Database check: Using Hyperdrive binding: ${bindingName} for ID: ${hyperdriveId}`);
+					console.log(
+						`Database check: Using Hyperdrive binding: ${bindingName} for ID: ${hyperdriveId}`
+					);
 					return binding;
 				}
 			}
@@ -311,7 +340,9 @@ export class HttpHealthCheckService implements HealthCheckService {
 		// This maintains backward compatibility
 		if (allBindings.length > 0) {
 			const fallbackBinding = (this.env as any)[allBindings[0]] as Hyperdrive;
-			console.warn(`Database check: No specific match for Hyperdrive ID ${hyperdriveId}, using fallback binding: ${allBindings[0]}`);
+			console.warn(
+				`Database check: No specific match for Hyperdrive ID ${hyperdriveId}, using fallback binding: ${allBindings[0]}`
+			);
 			return fallbackBinding;
 		}
 

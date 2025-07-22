@@ -3,7 +3,12 @@ import { ServiceRepository } from '../../domain/repositories/ServiceRepository';
 import { StatusCheckRepository } from '../../domain/repositories/StatusCheckRepository';
 import { SLOCalculationService } from '../../domain/services/SLOCalculationService';
 import { NotificationService } from '../../domain/services/NotificationService';
-import { SLO, SLOBurnEvent, SLOAlertPayload, SLICalculationResult } from '../../domain/entities/SLO';
+import {
+	SLO,
+	SLOBurnEvent,
+	SLOAlertPayload,
+	SLICalculationResult,
+} from '../../domain/entities/SLO';
 
 export class SLOMonitoringUseCase {
 	constructor(
@@ -12,7 +17,7 @@ export class SLOMonitoringUseCase {
 		private statusCheckRepository: StatusCheckRepository,
 		private sloCalculationService: SLOCalculationService,
 		private notificationService: NotificationService,
-		private baseUrl: string,
+		private baseUrl: string
 	) {}
 
 	async evaluateAllSLOs(): Promise<void> {
@@ -48,7 +53,11 @@ export class SLOMonitoringUseCase {
 			const timeWindowStart = new Date();
 			timeWindowStart.setDate(timeWindowStart.getDate() - slo.timeWindowDays);
 
-			const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(slo.serviceId, timeWindowStart, new Date());
+			const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(
+				slo.serviceId,
+				timeWindowStart,
+				new Date()
+			);
 
 			console.log(`Retrieved ${checks.length} status checks for SLO evaluation`);
 
@@ -78,7 +87,9 @@ export class SLOMonitoringUseCase {
 
 	async evaluateSingleSLO(slo: SLO): Promise<SLICalculationResult> {
 		try {
-			console.log(`Evaluating single SLO: ${slo.name} (ID: ${slo.id}) for service ${slo.serviceId}`);
+			console.log(
+				`Evaluating single SLO: ${slo.name} (ID: ${slo.id}) for service ${slo.serviceId}`
+			);
 
 			// Get service details
 			const service = await this.serviceRepository.findById(slo.serviceId);
@@ -97,7 +108,11 @@ export class SLOMonitoringUseCase {
 			const timeWindowStart = new Date();
 			timeWindowStart.setDate(timeWindowStart.getDate() - slo.timeWindowDays);
 
-			const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(slo.serviceId, timeWindowStart, new Date());
+			const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(
+				slo.serviceId,
+				timeWindowStart,
+				new Date()
+			);
 
 			console.log(`Retrieved ${checks.length} status checks for single SLO evaluation`);
 
@@ -119,7 +134,12 @@ export class SLOMonitoringUseCase {
 		}
 	}
 
-	private async handleFastBurn(slo: SLO, service: any, calculation: any, existingBurnEvent: SLOBurnEvent | null): Promise<void> {
+	private async handleFastBurn(
+		slo: SLO,
+		service: any,
+		calculation: any,
+		existingBurnEvent: SLOBurnEvent | null
+	): Promise<void> {
 		if (existingBurnEvent) {
 			// Update existing burn event with latest metrics
 			await this.sloRepository.updateBurnEvent(existingBurnEvent.id!, {
@@ -145,7 +165,12 @@ export class SLOMonitoringUseCase {
 		}
 	}
 
-	private async handleBurnResolution(slo: SLO, service: any, calculation: any, existingBurnEvent: SLOBurnEvent): Promise<void> {
+	private async handleBurnResolution(
+		slo: SLO,
+		service: any,
+		calculation: any,
+		existingBurnEvent: SLOBurnEvent
+	): Promise<void> {
 		// Resolve the burn event
 		await this.sloRepository.updateBurnEvent(existingBurnEvent.id!, {
 			resolvedAt: new Date().toISOString(),
@@ -161,7 +186,7 @@ export class SLOMonitoringUseCase {
 		slo: SLO,
 		service: any,
 		calculation: any,
-		eventType: 'slo_burn_rate_alert' | 'slo_burn_resolved',
+		eventType: 'slo_burn_rate_alert' | 'slo_burn_resolved'
 	): Promise<void> {
 		try {
 			// Get enabled notification rules for this SLO
@@ -176,10 +201,14 @@ export class SLOMonitoringUseCase {
 
 			// Check burn rate threshold (only for alerts, not resolutions)
 			if (eventType === 'slo_burn_rate_alert') {
-				const applicableRules = notificationRules.filter((rule) => calculation.burnRate >= rule.burnRateThreshold);
+				const applicableRules = notificationRules.filter(
+					rule => calculation.burnRate >= rule.burnRateThreshold
+				);
 
 				if (applicableRules.length === 0) {
-					console.log(`Burn rate ${calculation.burnRate} below threshold for all rules, skipping alerts`);
+					console.log(
+						`Burn rate ${calculation.burnRate} below threshold for all rules, skipping alerts`
+					);
 					return;
 				}
 			}
@@ -212,7 +241,9 @@ export class SLOMonitoringUseCase {
 
 			// Send notifications to all configured channels
 			for (const rule of notificationRules) {
-				const channel = await this.sloRepository.getNotificationChannelById(rule.notificationChannelId);
+				const channel = await this.sloRepository.getNotificationChannelById(
+					rule.notificationChannelId
+				);
 				if (!channel || !channel.enabled) {
 					console.warn(`Notification channel ${rule.notificationChannelId} not found or disabled`);
 					continue;
@@ -245,7 +276,11 @@ export class SLOMonitoringUseCase {
 		const timeWindowStart = new Date();
 		timeWindowStart.setDate(timeWindowStart.getDate() - slo.timeWindowDays);
 
-		const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(slo.serviceId, timeWindowStart, new Date());
+		const checks = await this.statusCheckRepository.findByServiceIdInTimeRange(
+			slo.serviceId,
+			timeWindowStart,
+			new Date()
+		);
 
 		const calculation = this.sloCalculationService.evaluateSLO(slo, checks);
 

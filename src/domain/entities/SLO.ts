@@ -69,7 +69,7 @@ export interface SLICalculationResult {
 	errorRate: number; // Current error rate
 	burnRate: number; // Current burn rate
 	errorBudgetConsumed: number; // Percentage of error budget consumed
-	timeToExhaustion?: number; // Hours until error budget exhausted
+	timeToExhaustion?: number | null; // Hours until error budget exhausted
 	isFastBurn: boolean; // Whether this is a fast burn scenario
 }
 
@@ -93,7 +93,7 @@ export interface SLOAlertPayload {
 	alert: {
 		burnRate: number;
 		errorBudgetConsumed: number;
-		timeToExhaustionHours?: number;
+		timeToExhaustionHours?: number | null;
 		currentSli: number;
 	};
 	dashboardUrl: string;

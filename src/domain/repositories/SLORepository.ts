@@ -19,7 +19,9 @@ export interface SLORepository {
 	getUnresolvedBurnEventBySLOId(sloId: number): Promise<SLOBurnEvent | null>;
 
 	// Notification Channel Management
-	createNotificationChannel(channel: Omit<NotificationChannel, 'id' | 'createdAt' | 'updatedAt'>): Promise<number>;
+	createNotificationChannel(
+		channel: Omit<NotificationChannel, 'id' | 'createdAt' | 'updatedAt'>
+	): Promise<number>;
 	updateNotificationChannel(id: number, channel: Partial<NotificationChannel>): Promise<void>;
 	deleteNotificationChannel(id: number): Promise<void>;
 	getNotificationChannelById(id: number): Promise<NotificationChannel | null>;
@@ -27,7 +29,9 @@ export interface SLORepository {
 	getEnabledNotificationChannels(): Promise<NotificationChannel[]>;
 
 	// SLO Notification Rules Management
-	createSLONotification(sloNotification: Omit<SLONotification, 'id' | 'createdAt'>): Promise<number>;
+	createSLONotification(
+		sloNotification: Omit<SLONotification, 'id' | 'createdAt'>
+	): Promise<number>;
 	updateSLONotification(id: number, sloNotification: Partial<SLONotification>): Promise<void>;
 	deleteSLONotification(id: number): Promise<void>;
 	getSLONotificationById(id: number): Promise<SLONotification | null>;

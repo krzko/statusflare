@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { Service, CreateServiceRequest, UpdateServiceRequest } from '../../../src/domain/entities/Service';
+import {
+	Service,
+	CreateServiceRequest,
+	UpdateServiceRequest,
+} from '../../../src/domain/entities/Service';
 
 describe('Service Entity Interface', () => {
 	const mockService: Service = {
@@ -58,7 +62,7 @@ describe('Service Entity Interface', () => {
 		it('should support different monitor types', () => {
 			const monitorTypes: Array<Service['monitorType']> = ['http', 'keyword', 'api', 'database'];
 
-			monitorTypes.forEach((type) => {
+			monitorTypes.forEach(type => {
 				const service: Service = {
 					...mockService,
 					monitorType: type,

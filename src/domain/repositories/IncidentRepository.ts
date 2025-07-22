@@ -1,4 +1,10 @@
-import { Incident, IncidentUpdate, CreateIncidentRequest, UpdateIncidentRequest, CreateIncidentUpdateRequest } from '../entities/Incident';
+import {
+	Incident,
+	IncidentUpdate,
+	CreateIncidentRequest,
+	UpdateIncidentRequest,
+	CreateIncidentUpdateRequest,
+} from '../entities/Incident';
 
 export interface IncidentRepository {
 	findAll(limit?: number): Promise<Incident[]>;

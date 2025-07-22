@@ -16,7 +16,7 @@ export class TestWebhookUseCase {
 	constructor(
 		private sloRepository: SLORepository,
 		private notificationService: NotificationService,
-		private baseUrl: string,
+		private baseUrl: string
 	) {}
 
 	async execute(request: TestWebhookRequest): Promise<TestWebhookResponse> {

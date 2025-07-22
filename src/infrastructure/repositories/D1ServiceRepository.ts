@@ -10,17 +10,25 @@ export class D1ServiceRepository implements ServiceRepository {
 	}
 
 	async findById(id: number): Promise<Service | null> {
-		const result = await this.db.prepare('SELECT * FROM services WHERE id = ?').bind(id).first<Service>();
+		const result = await this.db
+			.prepare('SELECT * FROM services WHERE id = ?')
+			.bind(id)
+			.first<Service>();
 		return result ? this.mapToService(result) : null;
 	}
 
 	async findByName(name: string): Promise<Service | null> {
-		const result = await this.db.prepare('SELECT * FROM services WHERE name = ?').bind(name).first<Service>();
+		const result = await this.db
+			.prepare('SELECT * FROM services WHERE name = ?')
+			.bind(name)
+			.first<Service>();
 		return result ? this.mapToService(result) : null;
 	}
 
 	async findEnabled(): Promise<Service[]> {
-		const result = await this.db.prepare('SELECT * FROM services WHERE enabled = true ORDER BY name').all<Service>();
+		const result = await this.db
+			.prepare('SELECT * FROM services WHERE enabled = true ORDER BY name')
+			.all<Service>();
 		return result.results.map(this.mapToService);
 	}
 
@@ -31,7 +39,7 @@ export class D1ServiceRepository implements ServiceRepository {
 				INSERT INTO services (name, url, method, expected_status, expected_content, timeout_ms, enabled, category_id, monitor_type, keyword, request_body, request_headers, bearer_token, database_query, hyperdrive_id)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 				RETURNING *
-			`,
+			`
 			)
 			.bind(
 				service.name,
@@ -48,7 +56,7 @@ export class D1ServiceRepository implements ServiceRepository {
 				service.requestHeaders || null,
 				service.bearerToken || null,
 				service.databaseQuery || null,
-				service.hyperdriveId || null,
+				service.hyperdriveId || null
 			)
 			.first<Service>();
 
