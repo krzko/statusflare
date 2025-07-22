@@ -80,6 +80,8 @@ Statusflare automatically monitors your services using multiple monitor types an
    - Public status page: `https://your-worker.your-subdomain.workers.dev/`
    - Admin panel: `https://your-worker.your-subdomain.workers.dev/admin`
 
+   **NOTE:** You can add a worker to [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) to make it accessible from a custom domain.
+
 ## Technologies
 
 - **Runtime**: Cloudflare Workers
