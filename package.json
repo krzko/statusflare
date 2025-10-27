@@ -33,7 +33,7 @@
 		"prettier": "^3.4.2",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
-		"wrangler": "^4.25.0"
+		"wrangler": "^4.45.0"
 	},
 	"dependencies": {
 		"postgres": "^3.4.7"
