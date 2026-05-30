@@ -101,26 +101,6 @@ CREATE TABLE IF NOT EXISTS system_status (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_services_category ON services(category_id);
-CREATE INDEX IF NOT EXISTS idx_services_monitor_type ON services(monitor_type);
-CREATE INDEX IF NOT EXISTS idx_status_checks_service ON status_checks(service_id);
-CREATE INDEX IF NOT EXISTS idx_status_checks_checked_at ON status_checks(checked_at DESC);
-CREATE INDEX IF NOT EXISTS idx_status_checks_service_time ON status_checks(service_id, checked_at DESC);
-CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status);
-CREATE INDEX IF NOT EXISTS idx_incidents_started_at ON incidents(started_at DESC);
-CREATE INDEX IF NOT EXISTS idx_incident_updates_incident ON incident_updates(incident_id);
-CREATE INDEX IF NOT EXISTS idx_incident_updates_created ON incident_updates(created_at ASC);
-CREATE INDEX IF NOT EXISTS idx_slos_service ON slos(service_id);
-CREATE INDEX IF NOT EXISTS idx_slos_service_enabled ON slos(service_id, enabled);
-CREATE INDEX IF NOT EXISTS idx_slo_burn_events_slo ON slo_burn_events(slo_id);
-CREATE INDEX IF NOT EXISTS idx_slo_burn_events_triggered ON slo_burn_events(triggered_at DESC);
-CREATE INDEX IF NOT EXISTS idx_slo_burn_events_unresolved ON slo_burn_events(slo_id, resolved_at) WHERE resolved_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_notification_channels_enabled ON notification_channels(enabled);
-CREATE INDEX IF NOT EXISTS idx_slo_notifications_slo ON slo_notifications(slo_id);
-CREATE INDEX IF NOT EXISTS idx_slo_notifications_channel ON slo_notifications(notification_channel_id);
-CREATE INDEX IF NOT EXISTS idx_slo_notifications_enabled ON slo_notifications(slo_id, enabled);
-
 -- SLO Configuration table for Service Level Objectives
 CREATE TABLE IF NOT EXISTS slos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -170,6 +150,26 @@ CREATE TABLE IF NOT EXISTS slo_notifications (
     FOREIGN KEY (slo_id) REFERENCES slos(id) ON DELETE CASCADE,
     FOREIGN KEY (notification_channel_id) REFERENCES notification_channels(id) ON DELETE CASCADE
 );
+
+-- Create indexes for performance (Now down here after tables exist!)
+CREATE INDEX IF NOT EXISTS idx_services_category ON services(category_id);
+CREATE INDEX IF NOT EXISTS idx_services_monitor_type ON services(monitor_type);
+CREATE INDEX IF NOT EXISTS idx_status_checks_service ON status_checks(service_id);
+CREATE INDEX IF NOT EXISTS idx_status_checks_checked_at ON status_checks(checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_status_checks_service_time ON status_checks(service_id, checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status);
+CREATE INDEX IF NOT EXISTS idx_incidents_started_at ON incidents(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_incident_updates_incident ON incident_updates(incident_id);
+CREATE INDEX IF NOT EXISTS idx_incident_updates_created ON incident_updates(created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_slos_service ON slos(service_id);
+CREATE INDEX IF NOT EXISTS idx_slos_service_enabled ON slos(service_id, enabled);
+CREATE INDEX IF NOT EXISTS idx_slo_burn_events_slo ON slo_burn_events(slo_id);
+CREATE INDEX IF NOT EXISTS idx_slo_burn_events_triggered ON slo_burn_events(triggered_at DESC);
+CREATE INDEX IF NOT EXISTS idx_slo_burn_events_unresolved ON slo_burn_events(slo_id, resolved_at) WHERE resolved_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_notification_channels_enabled ON notification_channels(enabled);
+CREATE INDEX IF NOT EXISTS idx_slo_notifications_slo ON slo_notifications(slo_id);
+CREATE INDEX IF NOT EXISTS idx_slo_notifications_channel ON slo_notifications(notification_channel_id);
+CREATE INDEX IF NOT EXISTS idx_slo_notifications_enabled ON slo_notifications(slo_id, enabled);
 
 -- Insert default data (INSERT OR IGNORE prevents duplicates)
 INSERT OR IGNORE INTO categories (id, name, description, display_order) VALUES 
